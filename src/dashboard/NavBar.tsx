@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 
 function NavBar() {
@@ -51,6 +51,11 @@ function NavBar() {
             <li className="nav-item mx-1">
               <Link className="nav-link text-white fw-semibold" to="/general">
                 General
+              </Link>
+            </li>
+            <li className="nav-item mx-1">
+              <Link className="nav-link text-white fw-semibold" to="/facturacion">
+                Facturación
               </Link>
             </li>
           </ul>
