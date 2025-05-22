@@ -1,7 +1,7 @@
 import { Container, Table, Button, Row, Col, Form, Modal } from 'react-bootstrap';
 import { useState } from 'react';
 import FacturaModal from '../utils/FacturaModal';
-import type { Factura } from './fact';
+import { FacturaModalInternal, type Factura } from './fact';
 
 interface Salida {
   id: number;
@@ -27,11 +27,18 @@ export const HistorialSalidasPage = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<"PDF" | "XML" | "VIEW" | "NEW" | "">("");
   const [invoices, setInvoices] = useState<Factura[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = useState<Factura | null>(null);
+   const [facturaModalType, setFacturaModalType] = useState<"PDF" | "XML" | "VIEW" | "NEW" | "">("");
+    const [showFacturaExtras, setShowFacturaExtras] = useState<boolean>(false);
 
     const handleEditar = (salida: Salida) => {
   setSalidaSeleccionada(salida);
   setMostrarModal(true);
 };
+
+const closeFacturaModalHandler = () => {
+    setShowModal(false); setSelectedInvoice(null); setFacturaModalType(""); setShowFacturaExtras(false);
+  };
 
 const openNewFacturaModal = (s: Salida) => {
     setSalidaSeleccionada(s)
@@ -41,7 +48,10 @@ const openNewFacturaModal = (s: Salida) => {
 
   const handleSaveFacturaFromModal = (factura: Factura) => {
       setInvoices([factura, ...invoices]);
-      setSalidaSeleccionada({ ...salidaSeleccionada!, facturado: true })
+      setSalidas((prev) =>
+          prev.map((s) => (s.id === salidaSeleccionada!.id ? {...salidaSeleccionada!, facturado: true } : s))
+        );
+        setSalidaSeleccionada(null)
     };
 
 
@@ -168,14 +178,12 @@ const openNewFacturaModal = (s: Salida) => {
   </Modal.Footer>
 </Modal>
 
-<FacturaModal
-        show={showModal && modalType === "NEW"}
-        onClose={() => {
-          setShowModal(false);
-          setModalType("");
-        }}
-        onSave={handleSaveFacturaFromModal}
-      />
+      <FacturaModalInternal
+                  show={showModal}
+                  onClose={closeFacturaModalHandler}
+                  onSave={handleSaveFacturaFromModal}
+                   initialFactura={selectedInvoice || undefined} // selectedInvoice sería null para "NEW"
+                />
 
 
     </Container>
