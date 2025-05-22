@@ -68,7 +68,7 @@ export interface Factura {
 }
 
 // Componente FacturaModal (adaptado e integrado)
-const FacturaModalInternal: React.FC<{ show: boolean; onClose: () => void; onSave: (factura: Factura) => void; initialFactura?: Partial<Factura> }> = ({ show, onClose, onSave, initialFactura }) => {
+export const FacturaModalInternal: React.FC<{ show: boolean; onClose: () => void; onSave: (factura: Factura) => void; initialFactura?: Partial<Factura> }> = ({ show, onClose, onSave, initialFactura }) => {
   const [facturaData, setFacturaData] = useState<Partial<Factura>>(
     initialFactura || {
       serie: "F",
