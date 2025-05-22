@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Button, Table, Modal, Form } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Row, Col } from 'react-bootstrap';
 import { editProd } from '../NavBar';
+import { useNavigate } from 'react-router-dom';
 
 export interface Producto {
   id: number;
@@ -14,6 +15,8 @@ export interface Producto {
 }
 
 export const InventarioPage = () => {
+
+  const navigate = useNavigate();
 
   const [listaProductos, setListaProductos] = useState<Producto[]>([{
   id: 0,
@@ -45,7 +48,7 @@ export const InventarioPage = () => {
   const datosGuardados = localStorage.getItem('productos');
   if (datosGuardados) {
     setListaProductos(JSON.parse(datosGuardados));
-    console.log(listaProductos)
+    setCuentaID(listaProductos.length+2)
   }
   }, []);
 
@@ -71,10 +74,10 @@ export const InventarioPage = () => {
     setMostrarModal(true);
   };
 
-  const eliminarProducto = async () => {
+  const eliminarProducto = () => {
   if (productoAEliminar) {
     setListaProductos(listaProductos.filter(p => p.id !== productoAEliminar.id));
-    await editProd(listaProductos);
+    editProd(listaProductos);
     setProductoAEliminar(null);
     setMostrarConfirmacion(false);
   }
@@ -101,22 +104,31 @@ const confirmarEliminacion = (producto: Producto) => {
     }
   };
 
-  const guardarProducto = async () => {
+  const guardarProducto =  () => {
     if (modoEdicion) {
       setListaProductos(listaProductos.map(p => (p.id === productoActual.id ? productoActual : p)));
     } else {
       setListaProductos([...listaProductos, productoActual]);
     }
-    await editProd(listaProductos);
+    editProd(listaProductos);
     setMostrarModal(false);
   };
 
   return (
     <div className="container mt-4">
       <h1>Inventario de Productos</h1>
-      <Button variant="primary" className="mb-3" onClick={abrirModalParaAgregar}>
-        Agregar Producto
-      </Button>
+      <Row className="mb-3 justify-content-between align-items-center px-3">
+  <Col xs="auto">
+    <Button onClick={() => setMostrarModal(true)} variant="primary">
+      Agregar producto
+    </Button>
+  </Col>
+  <Col xs="auto">
+    <Button onClick={() => navigate('/historial-salidas')} variant="outline-secondary">
+      Historial de salidas
+    </Button>
+  </Col>
+</Row>
 
       <Table striped bordered hover>
         <thead>
