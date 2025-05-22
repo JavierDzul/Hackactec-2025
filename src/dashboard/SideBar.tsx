@@ -18,6 +18,7 @@ const sidebarLinks = [
   { id: "general", to: "/contabilidad", label: "General" },
     ],
 },
+    { id: "Riesgos y Resiliencia", to: "/riesgos", label: "Riesgos y Resiliencia" },
 
   {
     id: "proyecciones", // 'id' para el elemento padre del submenú
