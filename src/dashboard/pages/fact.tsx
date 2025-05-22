@@ -259,12 +259,12 @@ const TaxAndFinancingIntegrationDashboardWithInvoicing: React.FC = () => {
   // Estados del dashboard original
   const [satConnected, setSatConnected] = useState<boolean>(true);
   const [lastSync, setLastSync] = useState<string>(new Date().toLocaleString());
-  const [fiscalDocuments, setFiscalDocuments] = useState<FiscalDocument[]>([
+  const [fiscalDocuments, setFiscalDocuments] = useState<any[]>([
     { id: "FAC001", name: "Factura Venta A015", type: "Factura", date: "2025-05-20", status: "Disponible" },
     { id: "DEC001", name: "Declaración Mensual IVA - Abril 2025", type: "Declaración", date: "2025-05-15", status: "Disponible" },
   ]);
   const [companyName, setCompanyName] = useState<string>("Mi Empresa Turística S.A. de C.V.");
-  const [creditPackage, setCreditPackage] = useState<CreditDocument[] | null>(null);
+  const [creditPackage, setCreditPackage] = useState<any[] | null>(null);
   const [financialScore, setFinancialScore] = useState<number | null>(null);
   const [generatingPackage, setGeneratingPackage] = useState<boolean>(false);
   const [taxableIncome, setTaxableIncome] = useState<number>(150000);

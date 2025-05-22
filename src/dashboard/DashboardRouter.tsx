@@ -12,6 +12,8 @@ import TaxAndFinancingIntegrationDashboard from "./pages/fact";
 import { ServiciosPage } from "./pages/Servicios";
 import ClienteComponenteDemo from "./pages/cliente";
 import OptimizacionRecursosMIPYMEDashboard from "./pages/optimizacion";
+import GestionRiesgosResilienciaDashboard from "./pages/riesgos";
+import PanelHomeMipymes from "./pages/home";
 
 
 export const DashboardRoutes = () => {
@@ -21,7 +23,8 @@ export const DashboardRoutes = () => {
     
       <DashboardLayout> 
         <Routes>
- 
+        <Route path="/riesgos" element={<GestionRiesgosResilienciaDashboard />} />
+
         <Route path="/contabilidad" element={<Contabilidad />} />
         <Route path="/Proyecciones" element={<FinancialProjectionDashboardToursFinal />} />
         <Route path="/ProyeccionesC" element={<FinancialProjectionDashboardRechartsPlus />} />
@@ -35,6 +38,7 @@ export const DashboardRoutes = () => {
         <Route path="/servicios" element={<ServiciosPage />} />
        
         <Route path="/optimizacion" element={<OptimizacionRecursosMIPYMEDashboard />} />
+        <Route path="/" element={<PanelHomeMipymes />} />
 
         </Routes>
       </DashboardLayout>
