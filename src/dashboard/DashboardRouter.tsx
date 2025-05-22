@@ -6,7 +6,7 @@ import FinancialProjectionDashboardRechartsPlus from "./pages/ProyeccionesDifici
 import EnhancedCashFlowDashboard from "./pages/flujo";
 import { InventarioPage, type Producto } from "./pages/Inventario";
 import { VentasPage } from "./pages/Ventas";
-import { VentaDetallePage } from "./pages/DetalleVenta";import Facturacion from "./pages/Facturacion";
+import { VentaDetallePage } from "./pages/DetalleVenta";
 import { HistorialSalidasPage } from "./pages/HistorialSalidas";
 import TaxAndFinancingIntegrationDashboard from "./pages/fact";
 
