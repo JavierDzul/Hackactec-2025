@@ -10,6 +10,7 @@ import { VentaDetallePage } from "./pages/DetalleVenta";
 import { HistorialSalidasPage } from "./pages/HistorialSalidas";
 import TaxAndFinancingIntegrationDashboard from "./pages/fact";
 import ClienteComponenteDemo from "./pages/cliente";
+import OptimizacionRecursosMIPYMEDashboard from "./pages/optimizacion";
 
 
 export const DashboardRoutes = () => {
@@ -30,7 +31,8 @@ export const DashboardRoutes = () => {
         <Route path="/ventas" element={<VentasPage/>}/>
         <Route path="/detalle-venta" element={<VentaDetallePage/>}/>
         <Route path="/historial-salidas" element={<HistorialSalidasPage />} />
-       
+        <Route path="/optimizacion" element={<OptimizacionRecursosMIPYMEDashboard />} />
+
         </Routes>
       </DashboardLayout>
     );
