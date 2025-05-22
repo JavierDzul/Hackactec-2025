@@ -30,6 +30,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
+import { Link } from "react-router-dom"; // Asegurarse que Link esté importado
 
 // -----------------------------------------------------------------
 // Dashboard de Proyección Financiera para Microempresa de Tours
@@ -236,8 +237,18 @@ const FinancialProjectionDashboardToursFinal: React.FC = () => {
       <h2 style={{ marginBottom: "1em", color: "#2c3e50", fontWeight: "bold" }}>
         <FaBusAlt style={{ marginRight: 10, color: "#2980b9" }} />
         Proyecciones y Escenarios Financieros
+        <Button
+                  variant="info"
+                  as={Link}
+                  to="/proyeccionesC"
+                  style={{ marginLeft: 300, width: "19%" }}
+                >
+                  Proyecciones Avanzadas
+                </Button>
       </h2>
-
+    
+           
+     
       <Row>
         {/* Columna Izquierda: Noticias y Parámetros */}
         <Col lg={4} style={{ marginBottom: "1em" }}>
@@ -378,6 +389,16 @@ const FinancialProjectionDashboardToursFinal: React.FC = () => {
                 <Button variant="outline-primary" style={{ marginTop: 10, width: "100%" }}>
                   Actualizar Proyección
                 </Button>
+                {/* --- BOTÓN AÑADIDO --- */}
+                <Button
+                  variant="info"
+                  as={Link}
+                  to="/proyeccionesC"
+                  style={{ marginTop: 10, width: "100%" }}
+                >
+                  Proyecciones Avanzadas
+                </Button>
+                {/* --- FIN BOTÓN AÑADIDO --- */}
               </Card.Body>
             </Collapse>
           </Card>

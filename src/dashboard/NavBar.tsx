@@ -1,8 +1,8 @@
-import  { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import type { Producto } from './pages/Inventario';
 import type { Servicio } from './pages/Servicios';
-
 
 export let productos: Producto[] = [
   {
@@ -137,7 +137,18 @@ function NavBar() {
               </Link>
             </li>
           </ul>
+       
+        <div className="d-flex align-items-center ms-auto">
+          <Link className="nav-link text-white fw-semibold d-flex align-items-center m-1" to="/micuenta">
+            <FaUserCircle size={22} className="me-1" />
+            MiCuenta
+          </Link>
+          <Link className="nav-link text-white fw-semibold d-flex align-items-center m-1" to="/carrito">
+            <FaShoppingCart size={22} className="me-1" />
+            Carrito
+          </Link>
         </div>
+      </div>
       </div>
     </nav>
   );

@@ -10,6 +10,7 @@ import { VentaDetallePage } from "./pages/DetalleVenta";
 import { HistorialSalidasPage } from "./pages/HistorialSalidas";
 import TaxAndFinancingIntegrationDashboard from "./pages/fact";
 import { ServiciosPage } from "./pages/Servicios";
+import ClienteComponenteDemo from "./pages/cliente";
 
 
 export const DashboardRoutes = () => {
@@ -25,7 +26,7 @@ export const DashboardRoutes = () => {
         <Route path="/ProyeccionesC" element={<FinancialProjectionDashboardRechartsPlus />} />
         <Route path="/Flujo" element={<EnhancedCashFlowDashboard />} />
         <Route path="/facturacion" element={<TaxAndFinancingIntegrationDashboard />} />
-
+        <Route path="/clientes" element={ <ClienteComponenteDemo></ClienteComponenteDemo>} />
         <Route path="/inventario" element={<InventarioPage/>}/>
         <Route path="/ventas" element={<VentasPage/>}/>
         <Route path="/detalle-venta" element={<VentaDetallePage/>}/>

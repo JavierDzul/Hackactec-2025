@@ -1,8 +1,67 @@
-import type { Factura, Issuer, Receiver, Item, Tax, TaxStamp } from "../pages/Facturacion";
+
 
 /**
  * Crea una factura válida con todos los atributos requeridos y cálculos automáticos.
  */
+
+export interface TaxStamp {
+  uuid: string;
+  date: string;
+  satCertNumber: string;
+  satSign: string;
+  cfdiSign: string;
+  rfcProvCertif: string;
+}
+
+export interface Issuer {
+  fiscalRegime: string;
+  rfc: string;
+  taxName: string;
+}
+
+export interface Receiver {
+  rfc: string;
+  name: string;
+}
+
+export interface Item {
+  discount: number;
+  quantity: number;
+  unit: string;
+  description: string;
+  unitValue: number;
+  total: number;
+}
+
+export interface Tax {
+  total: number;
+  name: string;
+  rate: number;
+  type: string;
+}
+
+export interface Factura {
+  uuid: string;
+  serie: string;
+  folio: string;
+  fecha: string;
+  paymentTerms: string;
+  paymentConditions: string;
+  paymentMethod: string;
+  expeditionPlace: string;
+  currency: string;
+  subtotal: number;
+  discount: number;
+  total: number;
+  estado: string;
+  issuer: Issuer;
+  receiver: Receiver;
+  items: Item[];
+  taxes: Tax[];
+  taxStamp: TaxStamp;
+}
+
+
 export function createFactura(params: {
   serie: string;
   folio: string;
