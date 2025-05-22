@@ -1,0 +1,17 @@
+[
+  {
+    "id": "p1",
+    "tipo": "producto",
+    "nombre": "Jabón",
+    "descripcion": "Jabón neutro para piel sensible",
+    "cantidad": 20,
+    "unidad": "PZA",
+    "precioUnitario": 10,
+    "descuento": 0,
+    "total": 200,
+    "proveedor": "JabonInc",
+    "precioCompra": 5.5,
+    "precioVenta": 10,
+    "img": "src/assets/jabon.jpg"
+  }
+]

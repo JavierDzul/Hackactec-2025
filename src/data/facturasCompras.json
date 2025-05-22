@@ -1,0 +1,50 @@
+[
+  {
+    "uuid": "fc1",
+    "serie": "A",
+    "folio": "5001",
+    "fecha": "2025-06-02T12:00:00",
+    "proveedor": {
+      "rfc": "PROV123456789",
+      "nombre": "PROVEEDOR DE INSUMOS SA DE CV",
+      "direccion": "Av. Proveedores 456"
+    },
+    "cuentaEmpresa": {
+      "rfc": "TUR123456789",
+      "nombre": "TOUR OPERADORA MEXICANA SA DE CV"
+    },
+    "conceptos": [
+      {
+        "id": "mp1",
+        "tipo": "producto",
+        "nombre": "Materia Prima A",
+        "descripcion": "Materia prima para tours",
+        "cantidad": 10,
+        "unidad": "KG",
+        "precioUnitario": 100,
+        "descuento": 0,
+        "total": 1000
+      }
+    ],
+    "subtotal": 1000,
+    "discount": 0,
+    "total": 1160,
+    "taxes": [
+      {
+        "total": 160,
+        "name": "IVA",
+        "rate": 16,
+        "type": "transferred"
+      }
+    ],
+    "estado": "Activo",
+    "taxStamp": {
+      "uuid": "fc1",
+      "date": "2025-06-02T12:05:00",
+      "cfdiSign": "FAKE-CFDI-SIGN-COMPRA",
+      "satCertNumber": "30001000000300023790",
+      "satSign": "FAKE-SAT-SIGN-COMPRA",
+      "rfcProvCertif": "PROVCERT987"
+    }
+  }
+]

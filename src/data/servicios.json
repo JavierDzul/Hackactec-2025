@@ -1,0 +1,14 @@
+[
+  {
+    "id": "s1",
+    "tipo": "servicio",
+    "nombre": "Tour a Teotihuacán",
+    "descripcion": "Tour guiado a la zona arqueológica de Teotihuacán",
+    "cantidad": 1,
+    "unidad": "SERV",
+    "precioUnitario": 2000,
+    "descuento": 0,
+    "total": 2000,
+    "responsable": "Guía Juan"
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "v1",
+    "fecha": "2025-06-01T10:00:00",
+    "cliente": {
+      "id": "c1",
+      "nombre": "JUAN PÉREZ",
+      "rfc": "CLI987654321",
+      "direccion": "Calle Falsa 123",
+      "email": "juan@email.com",
+      "telefono": "555-1234"
+    },
+    "conceptos": [
+      {
+        "id": "p1",
+        "tipo": "producto",
+        "nombre": "Jabón",
+        "descripcion": "Jabón neutro para piel sensible",
+        "cantidad": 2,
+        "unidad": "PZA",
+        "precioUnitario": 10,
+        "descuento": 0,
+        "total": 20
+      },
+      {
+        "id": "s1",
+        "tipo": "servicio",
+        "nombre": "Tour a Teotihuacán",
+        "descripcion": "Tour guiado a la zona arqueológica de Teotihuacán",
+        "cantidad": 1,
+        "unidad": "SERV",
+        "precioUnitario": 2000,
+        "descuento": 0,
+        "total": 2000
+      }
+    ],
+    "subtotal": 2020,
+    "descuento": 0,
+    "total": 2020,
+    "metodoPago": "01 Efectivo",
+    "facturaUuid": "f1"
+  }
+]
