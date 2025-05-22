@@ -1,10 +1,47 @@
-import React from 'react';
+import  { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import type { Producto } from './pages/Inventario';
+
+
+export let productos: Producto[] = [
+  {
+    id: 1,
+    nombre: "Jabón",
+    descripcion: "Jabón neutro para piel sensible",
+    cantidad: 20,
+    precioCompra: 5.5,
+    precioVenta: 10,
+    proveedor: "JabonInc",
+    img: "src/assets/jabon.jpg"
+  },
+  {
+    id: 2,
+    nombre: "Shampoo",
+    descripcion: "Shampoo anticaspa",
+    cantidad: 15,
+    precioCompra: 12.3,
+    precioVenta: 20,
+    proveedor: "JabonInc",
+    img: "src/assets/jabon.jpg"
+  }
+];
+
+export const editProd = (algo: any) => {
+  localStorage.setItem('productos', JSON.stringify(algo));
+  console.log(localStorage.getItem('productos'))
+}
+
+
 
 function NavBar() {
   const navbarStyle = {
     background: 'linear-gradient(45deg, #4F6D7A, #C0D6DF)',
   };
+
+  useEffect(() => {
+  localStorage.setItem('productos', JSON.stringify(productos));
+  console.log("Nav")
+  }, []);
 
   return (
     <nav className="navbar navbar-expand-lg" style={navbarStyle}>
@@ -51,6 +88,21 @@ function NavBar() {
             <li className="nav-item mx-1">
               <Link className="nav-link text-white fw-semibold" to="/general">
                 General
+              </Link>
+            </li>
+            <li className="nav-item mx-1">
+              <Link className="nav-link text-white fw-semibold" to="/inventario">
+                Inventario
+              </Link>
+            </li>
+            <li className="nav-item mx-1">
+              <Link className="nav-link text-white fw-semibold" to="/ventas">
+                Ventas
+              </Link>
+            </li>
+            <li className="nav-item mx-1">
+              <Link className="nav-link text-white fw-semibold" to="/facturacion">
+                Facturación
               </Link>
             </li>
           </ul>
