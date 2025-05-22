@@ -5,17 +5,19 @@ import { FaAngleDown, FaAngleUp } from "react-icons/fa"; // Iconos para indicar 
 // Estructura de datos actualizada para los enlaces, incluyendo 'id' y 'sublinks'
 const sidebarLinks = [
     {id: "clientes", to: "/clientes", label: "Clientes" }, // Enlace sin subenlaces
+
+    { id: "inventario", to: "/inventario", label: "Inventario" },
+    { id: "ventas", to: "/ventas", label: "Ventas" },
+    { id: "facturacion", to: "/facturacion", label: "Facturación" },
+
     { id: "contabilidad", to: "/contabilidad", label: "Contabilidad",
   sublinks: [ // Array de sub-enlaces
   { id: "Pronostico de flujo de efectivo", to: "/flujo", label: "Flujo de efectivo" },
+    { id: "oPtimización de recursos", to: "/optimizacion", label: "Optimización de recursos" },
   { id: "general", to: "/contabilidad", label: "General" },
-
-],
+    ],
 },
-  { id: "inventario", to: "/inventario", label: "Inventario" },
-  { id: "ventas", to: "/ventas", label: "Ventas" },
 
-  { id: "facturacion", to: "/facturacion", label: "Facturación" },
   {
     id: "proyecciones", // 'id' para el elemento padre del submenú
     label: "Proyecciones", // Etiqueta que se mostrará

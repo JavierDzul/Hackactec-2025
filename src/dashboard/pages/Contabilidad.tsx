@@ -10,7 +10,7 @@ export const Contabilidad = () => {
 
   return (
   
-    <div>contabilidad</div>
+<div>contabilidad</div>
 
     
  
