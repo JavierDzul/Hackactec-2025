@@ -5,7 +5,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
-interface TaxStamp {
+import FacturaModal from "../utils/FacturaModal"; // Asegúrate de que la ruta sea correcta
+
+export interface TaxStamp {
   uuid: string;
   date: string;
   satCertNumber: string;
@@ -14,18 +16,18 @@ interface TaxStamp {
   rfcProvCertif: string;
 }
 
-interface Issuer {
+export interface Issuer {
   fiscalRegime: string;
   rfc: string;
   taxName: string;
 }
 
-interface Receiver {
+export interface Receiver {
   rfc: string;
   name: string;
 }
 
-interface Item {
+export interface Item {
   discount: number;
   quantity: number;
   unit: string;
@@ -34,14 +36,14 @@ interface Item {
   total: number;
 }
 
-interface Tax {
+export interface Tax {
   total: number;
   name: string;
   rate: number;
   type: string;
 }
 
-interface Factura {
+export interface Factura {
   uuid: string;
   serie: string;
   folio: string;
@@ -66,7 +68,7 @@ export default function FacturasLandingPage() {
   const [invoices, setInvoices] = useState<Factura[]>([]);
   const [search, setSearch] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage] = useState<number>(2);
+  const [itemsPerPage] = useState<number>(10);
   const [selectedInvoice, setSelectedInvoice] = useState<Factura | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<"PDF" | "XML" | "VIEW" | "NEW" | "">("");
@@ -103,11 +105,77 @@ export default function FacturasLandingPage() {
 
   // Cargar facturas desde localStorage o mock, pero siempre asegurando que el ejemplo esté presente
   useEffect(() => {
-    const exampleFacturas: Factura[] = [
-      {
+    const exampleFacturas: Factura[] = [{
+
+        uuid: "D4E5F6A1-B2C3-4567-8901-2DEF34567890",
+  serie: "T",
+  folio: "101",
+  fecha: "2025-07-01T10:00:00",
+  paymentTerms: "04 - Tarjeta de crédito",
+  paymentConditions: "PAGO AL CONTADO",
+  paymentMethod: "PUE - Pago en una sola exhibición",
+  expeditionPlace: "64000",
+  currency: "MXN - Peso Mexicano",
+  subtotal: 13500.0,
+  discount: 500.0,
+  total: 15160.0,
+  estado: "Activo",
+  issuer: {
+    fiscalRegime: "601 - General de Ley Personas Morales",
+    rfc: "TUR123456789",
+    taxName: "TOUR OPERADORA MEXICANA SA DE CV"
+  },
+  receiver: {
+    rfc: "CLI999888777",
+    name: "LAURA MARTÍNEZ"
+  },
+  items: [
+    {
+      discount: 0.0,
+      quantity: 2,
+      unit: "PZA",
+      description: "Tour a Teotihuacán (adulto)",
+      unitValue: 2000.0,
+      total: 4000.0
+    },
+    {
+      discount: 0.0,
+      quantity: 3,
+      unit: "PZA",
+      description: "Tour a Xochimilco (adulto)",
+      unitValue: 2000.0,
+      total: 6000.0
+    },
+    {
+      discount: 0.0,
+      quantity: 1,
+      unit: "PZA",
+      description: "Tour a Chichen Itzá (adulto)",
+      unitValue: 4500.0,
+      total: 4500.0
+    }
+  ],
+  taxes: [
+    {
+      total: 2160.0,
+      name: "IVA",
+      rate: 16.0,
+      type: "transferred"
+    }
+  ],
+  taxStamp: {
+    uuid: "D4E5F6A1-B2C3-4567-8901-2DEF34567890",
+    date: "2025-07-01T10:05:00",
+    cfdiSign: "FAKE-CFDI-SIGN-MULTITOUR",
+    satCertNumber: "30001000000300023792",
+    satSign: "FAKE-SAT-SIGN-MULTITOUR",
+    rfcProvCertif: "TURPROVCERT126"
+  }
+}
+      ,{
         uuid: "A1B2C3D4-E5F6-7890-1234-56789ABCDEF0",
         serie: "T",
-        folio: "101",
+        folio: "102",
         fecha: "2025-06-01T09:00:00",
         paymentTerms: "01 - Efectivo",
         paymentConditions: "ANTICIPO DEL 50%",
@@ -157,7 +225,7 @@ export default function FacturasLandingPage() {
       {
         uuid: "B2C3D4E5-F6A1-2345-6789-0ABCDEF12345",
         serie: "T",
-        folio: "102",
+        folio: "103",
         fecha: "2025-06-10T08:30:00",
         paymentTerms: "02 - Cheque nominativo",
         paymentConditions: "PAGO AL CONTADO",
@@ -207,7 +275,7 @@ export default function FacturasLandingPage() {
       {
         uuid: "C3D4E5F6-A1B2-3456-7890-1BCDEF234567",
         serie: "T",
-        folio: "103",
+        folio: "104",
         fecha: "2025-06-15T11:00:00",
         paymentTerms: "03 - Transferencia electrónica de fondos",
         paymentConditions: "PAGO EN PARCIALIDADES",
@@ -573,76 +641,13 @@ export default function FacturasLandingPage() {
 
   // Nueva factura: abrir modal
   const openNewFacturaModal = () => {
-    setNewFactura({
-      serie: "",
-      folio: "",
-      fecha: "",
-      paymentTerms: "",
-      paymentConditions: "",
-      paymentMethod: "",
-      expeditionPlace: "",
-      currency: "",
-      subtotal: 0,
-      discount: 0,
-      total: 0,
-      estado: "Activo",
-      issuer: { fiscalRegime: "", rfc: "", taxName: "" },
-      receiver: { rfc: "", name: "" },
-      items: [],
-      taxes: [],
-      taxStamp: {
-        uuid: "",
-        date: "",
-        cfdiSign: "",
-        satCertNumber: "",
-        satSign: "",
-        rfcProvCertif: ""
-      }
-    });
     setModalType("NEW");
     setShowModal(true);
   };
 
-  // Guardar nueva factura
-  const handleSaveNewFactura = () => {
-    if (!newFactura.serie || !newFactura.folio || !newFactura.fecha || !newFactura.receiver?.name) {
-      alert("Completa los campos obligatorios");
-      return;
-    }
-    const uuid = crypto.randomUUID();
-    const factura: Factura = {
-      ...newFactura,
-      uuid,
-      items: newFactura.items && newFactura.items.length > 0 ? newFactura.items : [
-        {
-          discount: 0,
-          quantity: 1,
-          unit: "PZA",
-          description: "Tour turístico",
-          unitValue: 1000,
-          total: 1000
-        }
-      ],
-      taxes: newFactura.taxes && newFactura.taxes.length > 0 ? newFactura.taxes : [
-        {
-          total: 160,
-          name: "IVA",
-          rate: 16,
-          type: "transferred"
-        }
-      ],
-      taxStamp: {
-        uuid,
-        date: new Date().toISOString(),
-        cfdiSign: "",
-        satCertNumber: "",
-        satSign: "",
-        rfcProvCertif: ""
-      }
-    } as Factura;
+  // Guardar factura desde el modal
+  const handleSaveFacturaFromModal = (factura: Factura) => {
     setInvoices([factura, ...invoices]);
-    setShowModal(false);
-    setModalType("");
   };
 
   return (
@@ -1017,148 +1022,14 @@ export default function FacturasLandingPage() {
       </Modal>
 
       {/* Modal Nueva Factura */}
-      <Modal show={showModal && modalType === "NEW"} onHide={closeModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Nueva Factura</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-2">
-              <Form.Label>Serie</Form.Label>
-              <Form.Control
-                value={newFactura.serie || ""}
-                onChange={e => setNewFactura({ ...newFactura, serie: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Folio</Form.Label>
-              <Form.Control
-                value={newFactura.folio || ""}
-                onChange={e => setNewFactura({ ...newFactura, folio: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Fecha</Form.Label>
-              <Form.Control
-                type="date"
-                value={newFactura.fecha ? newFactura.fecha.substring(0, 10) : ""}
-                onChange={e => setNewFactura({ ...newFactura, fecha: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Cliente</Form.Label>
-              <Form.Control
-                value={newFactura.receiver?.name || ""}
-                onChange={e => setNewFactura({
-                  ...newFactura,
-                  receiver: { ...newFactura.receiver!, name: e.target.value }
-                })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>RFC Cliente</Form.Label>
-              <Form.Control
-                value={newFactura.receiver?.rfc || ""}
-                onChange={e => setNewFactura({
-                  ...newFactura,
-                  receiver: { ...newFactura.receiver!, rfc: e.target.value }
-                })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Subtotal</Form.Label>
-              <Form.Control
-                type="number"
-                value={newFactura.subtotal || 0}
-                onChange={e => setNewFactura({ ...newFactura, subtotal: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Descuento</Form.Label>
-              <Form.Control
-                type="number"
-                value={newFactura.discount || 0}
-                onChange={e => setNewFactura({ ...newFactura, discount: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Total</Form.Label>
-              <Form.Control
-                type="number"
-                value={newFactura.total || 0}
-                onChange={e => setNewFactura({ ...newFactura, total: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Moneda</Form.Label>
-              <Form.Control
-                value={newFactura.currency || ""}
-                onChange={e => setNewFactura({ ...newFactura, currency: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Método de Pago</Form.Label>
-              <Form.Control
-                value={newFactura.paymentMethod || ""}
-                onChange={e => setNewFactura({ ...newFactura, paymentMethod: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Condiciones</Form.Label>
-              <Form.Control
-                value={newFactura.paymentConditions || ""}
-                onChange={e => setNewFactura({ ...newFactura, paymentConditions: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Lugar de Expedición</Form.Label>
-              <Form.Control
-                value={newFactura.expeditionPlace || ""}
-                onChange={e => setNewFactura({ ...newFactura, expeditionPlace: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Emisor</Form.Label>
-              <Form.Control
-                value={newFactura.issuer?.taxName || ""}
-                onChange={e => setNewFactura({
-                  ...newFactura,
-                  issuer: { ...newFactura.issuer!, taxName: e.target.value }
-                })}
-                placeholder="Nombre o razón social"
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>RFC Emisor</Form.Label>
-              <Form.Control
-                value={newFactura.issuer?.rfc || ""}
-                onChange={e => setNewFactura({
-                  ...newFactura,
-                  issuer: { ...newFactura.issuer!, rfc: e.target.value }
-                })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Régimen Fiscal Emisor</Form.Label>
-              <Form.Control
-                value={newFactura.issuer?.fiscalRegime || ""}
-                onChange={e => setNewFactura({
-                  ...newFactura,
-                  issuer: { ...newFactura.issuer!, fiscalRegime: e.target.value }
-                })}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveNewFactura}>
-            Guardar
-          </Button>
-          <Button variant="secondary" onClick={closeModal}>
-            Cancelar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <FacturaModal
+        show={showModal && modalType === "NEW"}
+        onClose={() => {
+          setShowModal(false);
+          setModalType("");
+        }}
+        onSave={handleSaveFacturaFromModal}
+      />
     </div>
   );
 }
