@@ -2,6 +2,7 @@ import  { useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { createFactura } from "../functions/createFactura";
 import type { Factura, Issuer, Receiver, Item, Tax, TaxStamp } from "../pages/Facturacion";
+import { v4 as uuidv4 } from "uuid"; // Instala con npm i uuid si no lo tienes
 
 interface FacturaModalProps {
   show: boolean;
@@ -80,8 +81,26 @@ export const FacturaModal: React.FC<FacturaModalProps> = ({ show, onClose, onSav
   const addTax = () => setTaxes([...taxes, { name: "", type: "transferred", rate: 0, total: 0 }]);
   const removeTax = (idx: number) => setTaxes(taxes.filter((_, i) => i !== idx));
 
+  // Calcula automáticamente el IVA si hay un impuesto llamado "IVA"
+  const autoCalculateIVATaxes = (items: Item[], taxes: Tax[]): Tax[] => {
+    const ivaIdx = taxes.findIndex(t => t.name?.toUpperCase() === "IVA");
+    if (ivaIdx !== -1) {
+      const base = items.reduce((sum, item) => sum + (item.total || 0), 0);
+      const rate = taxes[ivaIdx].rate || 16;
+      taxes[ivaIdx].total = Number(((base - (Number(discount) || 0)) * (rate / 100)).toFixed(2));
+    }
+    return taxes;
+  };
+
   // Guardar factura
   const handleSave = () => {
+    // Generar valores automáticos para el timbre fiscal si no existen
+    const generatedUuid = uuidv4();
+    const now = new Date().toISOString();
+
+    // Calcula impuestos automáticos (IVA)
+    const taxesWithIVA = autoCalculateIVATaxes(items, taxes);
+
     const factura = createFactura({
       serie,
       folio,
@@ -95,9 +114,16 @@ export const FacturaModal: React.FC<FacturaModalProps> = ({ show, onClose, onSav
       issuer,
       receiver,
       items,
-      taxes,
+      taxes: taxesWithIVA,
       discount,
-      taxStamp
+      taxStamp: {
+        uuid: taxStamp.uuid || generatedUuid,
+        date: taxStamp.date || now,
+        cfdiSign: taxStamp.cfdiSign || "FAKE-CFDI-SIGN-" + generatedUuid.slice(0, 8),
+        satCertNumber: taxStamp.satCertNumber || "3000100000030002" + Math.floor(Math.random() * 100000),
+        satSign: taxStamp.satSign || "FAKE-SAT-SIGN-" + generatedUuid.slice(0, 8),
+        rfcProvCertif: taxStamp.rfcProvCertif || "TURPROVCERT" + Math.floor(Math.random() * 1000)
+      }
     });
     onSave(factura);
     onClose();
@@ -226,7 +252,15 @@ export const FacturaModal: React.FC<FacturaModalProps> = ({ show, onClose, onSav
               <Col md={2}>
                 <Form.Group className="mb-2">
                   <Form.Label>Cantidad</Form.Label>
-                  <Form.Control type="number" value={item.quantity} onChange={e => handleItemChange(idx, "quantity", Number(e.target.value))} />
+                  <Form.Control
+                    type="text"
+                    inputMode="decimal"
+                    pattern="[0-9.]*"
+                    autoComplete="off"
+                    onWheel={e => e.currentTarget.blur()}
+                    value={item.quantity}
+                    onChange={e => handleItemChange(idx, "quantity", Number(e.target.value.replace(/[^0-9.]/g, "")))}
+                  />
                 </Form.Group>
               </Col>
               <Col md={2}>
@@ -238,19 +272,29 @@ export const FacturaModal: React.FC<FacturaModalProps> = ({ show, onClose, onSav
               <Col md={2}>
                 <Form.Group className="mb-2">
                   <Form.Label>Precio Unitario</Form.Label>
-                  <Form.Control type="number" value={item.unitValue} onChange={e => handleItemChange(idx, "unitValue", Number(e.target.value))} />
+                  <Form.Control
+                    type="text"
+                    inputMode="decimal"
+                    pattern="[0-9.]*"
+                    autoComplete="off"
+                    onWheel={e => e.currentTarget.blur()}
+                    value={item.unitValue}
+                    onChange={e => handleItemChange(idx, "unitValue", Number(e.target.value.replace(/[^0-9.]/g, "")))}
+                  />
                 </Form.Group>
               </Col>
               <Col md={2}>
                 <Form.Group className="mb-2">
                   <Form.Label>Descuento</Form.Label>
-                  <Form.Control type="number" value={item.discount} onChange={e => handleItemChange(idx, "discount", Number(e.target.value))} />
-                </Form.Group>
-              </Col>
-              <Col md={1}>
-                <Form.Group className="mb-2">
-                  <Form.Label>Total</Form.Label>
-                  <Form.Control type="number" value={item.total} readOnly />
+                  <Form.Control
+                    type="text"
+                    inputMode="decimal"
+                    pattern="[0-9.]*"
+                    autoComplete="off"
+                    onWheel={e => e.currentTarget.blur()}
+                    value={item.discount}
+                    onChange={e => handleItemChange(idx, "discount", Number(e.target.value.replace(/[^0-9.]/g, "")))}
+                  />
                 </Form.Group>
               </Col>
               <Col md={12}>
@@ -283,13 +327,15 @@ export const FacturaModal: React.FC<FacturaModalProps> = ({ show, onClose, onSav
               <Col md={3}>
                 <Form.Group className="mb-2">
                   <Form.Label>Tasa (%)</Form.Label>
-                  <Form.Control type="number" value={tax.rate} onChange={e => handleTaxChange(idx, "rate", Number(e.target.value))} />
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group className="mb-2">
-                  <Form.Label>Total</Form.Label>
-                  <Form.Control type="number" value={tax.total} onChange={e => handleTaxChange(idx, "total", Number(e.target.value))} />
+                  <Form.Control
+                    type="text"
+                    inputMode="decimal"
+                    pattern="[0-9.]*"
+                    autoComplete="off"
+                    onWheel={e => e.currentTarget.blur()}
+                    value={tax.rate}
+                    onChange={e => handleTaxChange(idx, "rate", Number(e.target.value.replace(/[^0-9.]/g, "")))}
+                  />
                 </Form.Group>
               </Col>
               <Col md={1}>
@@ -306,7 +352,15 @@ export const FacturaModal: React.FC<FacturaModalProps> = ({ show, onClose, onSav
           <hr />
           <Form.Group className="mb-2">
             <Form.Label>Descuento global</Form.Label>
-            <Form.Control type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} />
+            <Form.Control
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9.]*"
+              autoComplete="off"
+              onWheel={e => e.currentTarget.blur()}
+              value={discount}
+              onChange={e => setDiscount(Number(e.target.value.replace(/[^0-9.]/g, "")))}
+            />
           </Form.Group>
         </Form>
       </Modal.Body>
