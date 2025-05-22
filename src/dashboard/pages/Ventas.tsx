@@ -1,219 +1,288 @@
 import { useState } from 'react';
-import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
-import { productos } from '../NavBar';  // Asegúrate de exportar Producto y productos
-import type { Producto } from './Inventario';
-import { useNavigate } from 'react-router-dom';
+import { Table, Container, Row, Col } from 'react-bootstrap';
 
-
-interface ProductoVendido extends Producto {
-  cantidadVendida: number;
+// Interfaces
+interface ClienteVenta {
+  id: string;
+  nombreComercial: string;
+  rfc: string;
 }
 
+interface ProductoVenta {
+  id: string;
+  tipo: "producto";
+  nombre: string;
+  descripcion: string;
+  cantidad: number;
+  precioUnitario: number;
+  total: number;
+}
 
+interface ServicioVenta {
+  id: number;
+  tipo: "servicio";
+  nombre: string;
+  descripcion: string;
+  cantidad: number;
+  precioUnitario: number;
+  total: number;
+}
+
+interface VentaProducto {
+  id: string;
+  fecha: string;
+  cliente: ClienteVenta;
+  producto: ProductoVenta;
+  subtotal: number;
+  descuento: number;
+  total: number;
+  metodoPago: string;
+  facturaUuid: string;
+}
+
+interface VentaServicio {
+  id: string;
+  fecha: string;
+  cliente: ClienteVenta;
+  servicio: ServicioVenta;
+  subtotal: number;
+  descuento: number;
+  total: number;
+  metodoPago: string;
+  facturaUuid: string;
+}
+
+// Hardcoded sales data: products
+const VENTAS_PRODUCTOS: VentaProducto[] = [
+  {
+    id: "vp1",
+    fecha: "2025-06-10T12:00:00",
+    cliente: {
+      id: "CLT-20240610-A012",
+      nombreComercial: "TecnoSoluciones Avanzadas S.A. de C.V.",
+      rfc: "TSA010101XYZ"
+    },
+    producto: {
+      id: "p1",
+      tipo: "producto",
+      nombre: "Gorra promocional",
+      descripcion: "Gorra con el logo de la empresa para los turistas",
+      cantidad: 10,
+      precioUnitario: 120,
+      total: 1200
+    },
+    subtotal: 1200,
+    descuento: 0,
+    total: 1200,
+    metodoPago: "01 Efectivo",
+    facturaUuid: "fp1"
+  },
+  {
+    id: "vp2",
+    fecha: "2025-06-12T15:00:00",
+    cliente: {
+      id: "CLT-20230620-B088",
+      nombreComercial: "Laura Fernández - Consultoría Digital",
+      rfc: "FEGL850315ABC"
+    },
+    producto: {
+      id: "p2",
+      tipo: "producto",
+      nombre: "Botella de agua",
+      descripcion: "Botella de agua de 500ml para los clientes durante el tour",
+      cantidad: 20,
+      precioUnitario: 20,
+      total: 400
+    },
+    subtotal: 400,
+    descuento: 0,
+    total: 400,
+    metodoPago: "03 Transferencia",
+    facturaUuid: "fp2"
+  },
+  {
+    id: "vp3",
+    fecha: "2025-06-15T10:00:00",
+    cliente: {
+      id: "CLT-20240310-C105",
+      nombreComercial: "Manufacturas del Norte S. de R.L.",
+      rfc: "MNO101010JKL"
+    },
+    producto: {
+      id: "p3",
+      tipo: "producto",
+      nombre: "Mapa turístico",
+      descripcion: "Mapa impreso de la ciudad y puntos de interés",
+      cantidad: 5,
+      precioUnitario: 35,
+      total: 175
+    },
+    subtotal: 175,
+    descuento: 0,
+    total: 175,
+    metodoPago: "01 Efectivo",
+    facturaUuid: "fp3"
+  }
+];
+
+// Hardcoded sales data: services
+const VENTAS_SERVICIOS: VentaServicio[] = [
+  {
+    id: "vs1",
+    fecha: "2025-06-10T12:00:00",
+    cliente: {
+      id: "CLT-20240610-A012",
+      nombreComercial: "TecnoSoluciones Avanzadas S.A. de C.V.",
+      rfc: "TSA010101XYZ"
+    },
+    servicio: {
+      id: 1,
+      tipo: "servicio",
+      nombre: "Tour a Teotihuacán",
+      descripcion: "Recorrido guiado por la zona arqueológica de Teotihuacán, incluye transporte y entradas.",
+      cantidad: 1,
+      precioUnitario: 2000,
+      total: 2000
+    },
+    subtotal: 2000,
+    descuento: 0,
+    total: 2000,
+    metodoPago: "01 Efectivo",
+    facturaUuid: "fs1"
+  },
+  {
+    id: "vs2",
+    fecha: "2025-06-12T15:00:00",
+    cliente: {
+      id: "CLT-20230620-B088",
+      nombreComercial: "Laura Fernández - Consultoría Digital",
+      rfc: "FEGL850315ABC"
+    },
+    servicio: {
+      id: 2,
+      tipo: "servicio",
+      nombre: "Tour Xochimilco",
+      descripcion: "Paseo en trajinera por los canales de Xochimilco con guía y comida típica.",
+      cantidad: 1,
+      precioUnitario: 1800,
+      total: 1800
+    },
+    subtotal: 1800,
+    descuento: 0,
+    total: 1800,
+    metodoPago: "03 Transferencia",
+    facturaUuid: "fs2"
+  },
+  {
+    id: "vs3",
+    fecha: "2025-06-15T10:00:00",
+    cliente: {
+      id: "CLT-20240310-C105",
+      nombreComercial: "Manufacturas del Norte S. de R.L.",
+      rfc: "MNO101010JKL"
+    },
+    servicio: {
+      id: 3,
+      tipo: "servicio",
+      nombre: "Tour Centro Histórico",
+      descripcion: "Caminata guiada por el centro histórico de la ciudad, incluye entradas a museos.",
+      cantidad: 1,
+      precioUnitario: 1500,
+      total: 1500
+    },
+    subtotal: 1500,
+    descuento: 0,
+    total: 1500,
+    metodoPago: "01 Efectivo",
+    facturaUuid: "fs3"
+  }
+];
 
 export const VentasPage = () => {
-  const [mostrarModal, setMostrarModal] = useState(false);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
-  const [cantidad, setCantidad] = useState<number>(1);
-  const [productosVendidos, setProductosVendidos] = useState<ProductoVendido[]>([]);
-
-  const navigate = useNavigate();
-
-  const agregarProductoAVenta = () => {
-    if (productoSeleccionado && cantidad > 0) {
-      const yaAgregado = productosVendidos.find(p => p.id === productoSeleccionado.id);
-      if (yaAgregado) {
-        // Si ya está en la venta, sumamos la cantidad
-        yaAgregado.cantidadVendida += cantidad;
-        setProductosVendidos([...productosVendidos]);
-      } else {
-        setProductosVendidos([
-          ...productosVendidos,
-          { ...productoSeleccionado, cantidadVendida: cantidad }
-        ]);
-      }
-      setProductoSeleccionado(null);
-      setCantidad(1);
-      setMostrarModal(false);
-    }
-  };
-
-  const editarCantidad = (id: number, nuevaCantidad: number) => {
-    setProductosVendidos(prev =>
-      prev.map(p => (p.id === id ? { ...p, cantidadVendida: nuevaCantidad } : p))
-    );
-  };
-
-  const eliminarProducto = (id: number) => {
-    setProductosVendidos(prev => prev.filter(p => p.id !== id));
-  };
+  const [ventasProductos] = useState<VentaProducto[]>(VENTAS_PRODUCTOS);
+  const [ventasServicios] = useState<VentaServicio[]>(VENTAS_SERVICIOS);
 
   return (
-    <Container fluid className="d-flex flex-column" style={{ height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
-
-      <Row className="flex-grow-1 overflow-auto p-4">
-
+    <Container fluid className="p-4">
+      <Row className="mb-4">
         <Col>
-          <Table bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Precio Venta</th>
-                <th>Cantidad</th>
-                <th>Total</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productosVendidos.map(producto => (
-                <tr key={producto.id}>
-                  <td>
-                    {producto.img && (
-                      <img
-                        src={producto.img.toString()}
-                        alt={producto.nombre}
-                        width="60"
-                        height="60"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    )}
-                  </td>
-                  <td>{producto.nombre}</td>
-                  <td>${producto.precioVenta.toFixed(2)}</td>
-                  <td>
-                    <Form.Control
-                      type="number"
-                      min={1}
-                      value={producto.cantidadVendida}
-                      onChange={e =>
-                        editarCantidad(producto.id, parseInt(e.target.value) || 1)
-                      }
-                      style={{ maxWidth: '80px' }}
-                    />
-                  </td>
-                  <td>
-                    ${(producto.precioVenta * producto.cantidadVendida).toFixed(2)}
-                  </td>
-                  <td>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => eliminarProducto(producto.id)}
-                    >
-                      Eliminar
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {productosVendidos.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center">
-                    No hay productos en esta venta.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
+          <h3>Ventas de Productos</h3>
         </Col>
       </Row>
+      <Table bordered hover responsive>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>RFC</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+            <th>Descuento</th>
+            <th>Total</th>
+            <th>Método de Pago</th>
+            <th>Factura</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ventasProductos.map((venta) => (
+            <tr key={venta.id}>
+              <td>{new Date(venta.fecha).toLocaleDateString()}</td>
+              <td>{venta.cliente.nombreComercial}</td>
+              <td>{venta.cliente.rfc}</td>
+              <td>{venta.producto.nombre}</td>
+              <td>{venta.producto.cantidad}</td>
+              <td>${venta.producto.precioUnitario.toFixed(2)}</td>
+              <td>${venta.subtotal.toFixed(2)}</td>
+              <td>${venta.descuento.toFixed(2)}</td>
+              <td>${venta.total.toFixed(2)}</td>
+              <td>{venta.metodoPago}</td>
+              <td>{venta.facturaUuid}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
 
-      {/* Botón fijo abajo */}
-      <Row className="bg-light py-3 px-4 border-top justify-content-between align-items-center">
-  <Col xs="auto" className="d-flex gap-2">
-    <Button size="lg" variant="primary" onClick={() => setMostrarModal(true)}>
-      Agregar producto
-    </Button>
-    <Button size="lg" variant="secondary">
-      QR
-    </Button>
-  </Col>
-
-  <Col xs="auto">
-    <Button
-        size="lg"
-        variant="success"
-        disabled={productosVendidos.length === 0}
-        onClick={() => navigate('/detalle-venta', { state: { productos: productosVendidos } })}
-        >
-        Realizar venta
-    </Button>
-  </Col>
-</Row>
-
-      {/* Modal para agregar producto */}
-      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Agregar producto a la venta</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Form.Label>Seleccionar producto</Form.Label>
-              <Form.Select
-                onChange={e => {
-                  const prod = productos.find(p => p.id === parseInt(e.target.value));
-                  setProductoSeleccionado(prod || null);
-                }}
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  -- Elige un producto --
-                </option>
-                {productos.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            <Form.Group className="mt-3">
-              <Form.Label>Cantidad</Form.Label>
-              <Form.Control
-                type="number"
-                min={1}
-                value={cantidad}
-                onChange={e => setCantidad(parseInt(e.target.value) || 1)}
-              />
-            </Form.Group>
-
-            {productoSeleccionado && (
-              <div className="mt-4 d-flex align-items-center">
-                {productoSeleccionado.img && (
-                  <img
-                    src={productoSeleccionado.img.toString()}
-                    alt={productoSeleccionado.nombre}
-                    width="100"
-                    height="100"
-                    className="me-3"
-                    style={{ objectFit: 'cover' }}
-                  />
-                )}
-                <div>
-                  <h5>{productoSeleccionado.nombre}</h5>
-                  <p className="mb-1">
-                    <strong>Precio venta:</strong> ${productoSeleccionado.precioVenta.toFixed(2)}
-                  </p>
-                  <p className="mb-0">{productoSeleccionado.descripcion}</p>
-                </div>
-              </div>
-            )}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setMostrarModal(false)}>
-            Cancelar
-          </Button>
-          <Button
-            variant="success"
-            onClick={agregarProductoAVenta}
-            disabled={!productoSeleccionado}
-          >
-            Seleccionar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Row className="mb-4 mt-5">
+        <Col>
+          <h3>Ventas de Servicios</h3>
+        </Col>
+      </Row>
+      <Table bordered hover responsive>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>RFC</th>
+            <th>Servicio</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+            <th>Descuento</th>
+            <th>Total</th>
+            <th>Método de Pago</th>
+            <th>Factura</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ventasServicios.map((venta) => (
+            <tr key={venta.id}>
+              <td>{new Date(venta.fecha).toLocaleDateString()}</td>
+              <td>{venta.cliente.nombreComercial}</td>
+              <td>{venta.cliente.rfc}</td>
+              <td>{venta.servicio.nombre}</td>
+              <td>{venta.servicio.cantidad}</td>
+              <td>${venta.servicio.precioUnitario.toFixed(2)}</td>
+              <td>${venta.subtotal.toFixed(2)}</td>
+              <td>${venta.descuento.toFixed(2)}</td>
+              <td>${venta.total.toFixed(2)}</td>
+              <td>{venta.metodoPago}</td>
+              <td>{venta.facturaUuid}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
     </Container>
   );
 };

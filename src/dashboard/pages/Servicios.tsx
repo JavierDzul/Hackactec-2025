@@ -1,6 +1,5 @@
 import { Container, Table, Button, Row, Col, Form, Modal } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
-import { edirServ } from '../NavBar';
+import { useState } from 'react';
 
 export interface Servicio {
   id: number;
@@ -11,91 +10,114 @@ export interface Servicio {
   costo: number;
 }
 
+const SERVICIOS_TURISMO: Servicio[] = [
+  {
+    id: 1,
+    nombre: "Tour a Teotihuacán",
+    descripcion: "Recorrido guiado por la zona arqueológica de Teotihuacán, incluye transporte y entradas.",
+    fecha: "2025-06-10",
+    cobro: 2000,
+    costo: 1200
+  },
+  {
+    id: 2,
+    nombre: "Tour Xochimilco",
+    descripcion: "Paseo en trajinera por los canales de Xochimilco con guía y comida típica.",
+    fecha: "2025-06-12",
+    cobro: 1800,
+    costo: 1000
+  },
+  {
+    id: 3,
+    nombre: "Tour Centro Histórico",
+    descripcion: "Caminata guiada por el centro histórico de la ciudad, incluye entradas a museos.",
+    fecha: "2025-06-15",
+    cobro: 1500,
+    costo: 900
+  },
+  {
+    id: 4,
+    nombre: "Tour a Coyoacán y Frida Kahlo",
+    descripcion: "Visita a Coyoacán, mercado y Museo Frida Kahlo, transporte incluido.",
+    fecha: "2025-06-18",
+    cobro: 1700,
+    costo: 1100
+  },
+  {
+    id: 5,
+    nombre: "Tour gastronómico",
+    descripcion: "Recorrido por los mejores restaurantes y mercados de la ciudad.",
+    fecha: "2025-06-20",
+    cobro: 2200,
+    costo: 1400
+  }
+];
 
 export const ServiciosPage = () => {
-    
-    const [mostrarModal, setMostrarModal] = useState(false);
-    const [modoEdicion, setModoEdicion] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(false);
 
-    const [listaServicios, setListaServicios] = useState<Servicio[]>([{
+  // Inicializa con los servicios turísticos hardcodeados
+  const [listaServicios, setListaServicios] = useState<Servicio[]>(SERVICIOS_TURISMO);
+
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [servicioAEliminar, setServicioAEliminar] = useState<Servicio | null>(null);
+
+  const [cuentaID, setCuentaID] = useState(SERVICIOS_TURISMO.length + 1);
+  const [servicioActual, setServicioActual] = useState<Servicio>({
     id: 0,
-            nombre: '',
-            descripcion: "",
-            fecha: '',
-            cobro: 0,
-            costo: 0
-    }]);
+    nombre: '',
+    descripcion: "",
+    fecha: '',
+    cobro: 0,
+    costo: 0
+  });
 
-      const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-      const [servicioAEliminar, setServicioAEliminar] = useState<Servicio | null>(null);
-      
-      const [cuentaID, setCuentaID] = useState(3);
-      const [servicioActual, setServicioActual] = useState<Servicio>({
-        id: 0,
-        nombre: '',
-        descripcion: "",
-        fecha: '',
-        cobro: 0,
-        costo: 0
-      });
-
-      useEffect(() => {
-        const datosGuardados = localStorage.getItem('servicios');
-        if (datosGuardados) {
-          setListaServicios(JSON.parse(datosGuardados));
-          setCuentaID(listaServicios.length+2)
-        }
-        }, []);
-
-
-
- const guardarServicio =  () => {
+  const guardarServicio = () => {
     if (modoEdicion) {
       setListaServicios(listaServicios.map(p => (p.id === servicioActual.id ? servicioActual : p)));
     } else {
       setListaServicios([...listaServicios, servicioActual]);
+      setCuentaID(cuentaID + 1);
     }
-    edirServ(listaServicios);
     setMostrarModal(false);
   };
 
   const abrirModalParaAgregar = () => {
     setServicioActual({
       id: cuentaID,
-        nombre: '',
-        descripcion: "",
-        fecha: '',
-        cobro: 0,
-        costo: 0
+      nombre: '',
+      descripcion: "",
+      fecha: '',
+      cobro: 0,
+      costo: 0
     });
-    setCuentaID(cuentaID+1)
     setModoEdicion(false);
     setMostrarModal(true);
   };
 
   const abrirModalParaEditar = (servicio: Servicio) => {
-      setServicioActual(servicio);
-      setModoEdicion(true);
-      setMostrarModal(true);
-    };
+    setServicioActual(servicio);
+    setModoEdicion(true);
+    setMostrarModal(true);
+  };
 
-    const confirmarEliminacion = (servicio: Servicio) => {
-      setServicioAEliminar(servicio);
-      setMostrarConfirmacion(true);
-    };
+  const confirmarEliminacion = (servicio: Servicio) => {
+    setServicioAEliminar(servicio);
+    setMostrarConfirmacion(true);
+  };
 
-    const eliminarServicio = () => {
-      if (servicioAEliminar) {
-        setListaServicios(listaServicios.filter(p => p.id !== servicioAEliminar.id));
-        edirServ(listaServicios);
-        setServicioAEliminar(null);
-        setMostrarConfirmacion(false);
-      }
-    };
+  const eliminarServicio = () => {
+    if (servicioAEliminar) {
+      setListaServicios(listaServicios.filter(p => p.id !== servicioAEliminar.id));
+      setServicioAEliminar(null);
+      setMostrarConfirmacion(false);
+    }
+  };
 
-    const manejarCambio = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const manejarCambio = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setServicioActual({ ...servicioActual, [name]: name === 'cantidad' || name.includes('precio') ? parseFloat(value) : value });
+    setServicioActual({ ...servicioActual, [name]: name === 'cobro' || name === 'costo' ? parseFloat(value) : value });
   };
 
   return (
@@ -107,12 +129,12 @@ export const ServiciosPage = () => {
       </Row>
 
       <Row className="mb-3 justify-content-between align-items-center px-3">
-            <Col xs="auto">
-                <Button onClick={() => abrirModalParaAgregar()} variant="primary">
-                Agregar servicio
-                </Button>
-            </Col>
-        </Row>
+        <Col xs="auto">
+          <Button onClick={() => abrirModalParaAgregar()} variant="primary">
+            Agregar servicio
+          </Button>
+        </Col>
+      </Row>
 
       <Table bordered hover responsive>
         <thead>
@@ -124,7 +146,6 @@ export const ServiciosPage = () => {
             <th>Cobro del servicio</th>
             <th>Costo por servir</th>
             <th>Acciones</th>
-            
           </tr>
         </thead>
         <tbody>
@@ -136,9 +157,6 @@ export const ServiciosPage = () => {
               <td>{s.fecha}</td>
               <td>${parseFloat(s.cobro.toString()).toFixed(2)}</td>
               <td>${parseFloat(s.costo.toString()).toFixed(2)}</td>
-              
-
-
               <td>
                 <Button variant="warning" onClick={() => abrirModalParaEditar(s)}>
                   Editar
@@ -152,7 +170,7 @@ export const ServiciosPage = () => {
         </tbody>
       </Table>
 
-        <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
+      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{modoEdicion ? 'Editar Servicio' : 'Agregar Servicio'}</Modal.Title>
         </Modal.Header>
@@ -210,7 +228,6 @@ export const ServiciosPage = () => {
                 onChange={manejarCambio}
               />
             </Form.Group>
-
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -223,25 +240,23 @@ export const ServiciosPage = () => {
         </Modal.Footer>
       </Modal>
 
-<Modal show={mostrarConfirmacion} onHide={() => setMostrarConfirmacion(false)}>
-  <Modal.Header closeButton>
-    <Modal.Title>Confirmar eliminación</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    ¿Estás seguro de que deseas eliminar el servicio{' '}
-    <strong>{servicioAEliminar?.nombre}</strong>?
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setMostrarConfirmacion(false)}>
-      Cancelar
-    </Button>
-    <Button variant="danger" onClick={eliminarServicio}>
-      Eliminar
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-
+      <Modal show={mostrarConfirmacion} onHide={() => setMostrarConfirmacion(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Estás seguro de que deseas eliminar el servicio{' '}
+          <strong>{servicioAEliminar?.nombre}</strong>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setMostrarConfirmacion(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={eliminarServicio}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

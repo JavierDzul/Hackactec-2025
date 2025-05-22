@@ -1,40 +1,81 @@
 import { useEffect, useState } from 'react';
 import { Button, Table, Modal, Form, Row, Col } from 'react-bootstrap';
-import { editProd } from '../NavBar';
 import { useNavigate } from 'react-router-dom';
 
 export interface Producto {
-  id: number;
+  id: string;
   nombre: string;
   descripcion: string;
   cantidad: number;
   precioCompra: number;
   precioVenta: number;
-  proveedor: string
+  proveedor: string;
   img: string | ArrayBuffer | null;
 }
 
-export const InventarioPage = () => {
+const PRODUCTOS_TURISMO: Producto[] = [
+  {
+    id: "p1",
+    nombre: "Gorra promocional",
+    descripcion: "Gorra con el logo de la empresa para los turistas",
+    cantidad: 50,
+    precioCompra: 80,
+    precioVenta: 120,
+    proveedor: "PromosMX",
+    img: "src/assets/gorra.jpg"
+  },
+  {
+    id: "p2",
+    nombre: "Botella de agua",
+    descripcion: "Botella de agua de 500ml para los clientes durante el tour",
+    cantidad: 200,
+    precioCompra: 12,
+    precioVenta: 20,
+    proveedor: "AguaPura",
+    img: "src/assets/agua.jpg"
+  },
+  {
+    id: "p3",
+    nombre: "Mapa turístico",
+    descripcion: "Mapa impreso de la ciudad y puntos de interés",
+    cantidad: 100,
+    precioCompra: 20,
+    precioVenta: 35,
+    proveedor: "ImpresionesCDMX",
+    img: "src/assets/mapa.jpg"
+  },
+  {
+    id: "p4",
+    nombre: "Playera conmemorativa",
+    descripcion: "Playera conmemorativa del tour",
+    cantidad: 30,
+    precioCompra: 120,
+    precioVenta: 180,
+    proveedor: "TextilesTur",
+    img: "src/assets/playera.jpg"
+  },
+  {
+    id: "p5",
+    nombre: "Kit de primeros auxilios",
+    descripcion: "Kit básico de primeros auxilios para emergencias durante el tour",
+    cantidad: 10,
+    precioCompra: 180,
+    precioVenta: 250,
+    proveedor: "SaludTur",
+    img: "src/assets/primeros_auxilios.jpg"
+  }
+];
 
+export const InventarioPage = () => {
   const navigate = useNavigate();
 
-  const [listaProductos, setListaProductos] = useState<Producto[]>([{
-  id: 0,
-  nombre: "string",
-  descripcion: "string",
-  cantidad: 1,
-  precioCompra: 1,
-  precioVenta: 1,
-  proveedor: "string",
-  img: "string" 
-}]);
+  const [listaProductos, setListaProductos] = useState<Producto[]>(PRODUCTOS_TURISMO);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [productoAEliminar, setProductoAEliminar] = useState<Producto | null>(null);
-  const [cuentaID, setCuentaID] = useState(3);
   const [productoActual, setProductoActual] = useState<Producto>({
-    id: 0,
+    id: '',
     nombre: '',
     descripcion: '',
     cantidad: 0,
@@ -44,17 +85,9 @@ export const InventarioPage = () => {
     img: null
   });
 
-  useEffect(() => {
-  const datosGuardados = localStorage.getItem('productos');
-  if (datosGuardados) {
-    setListaProductos(JSON.parse(datosGuardados));
-    setCuentaID(listaProductos.length+2)
-  }
-  }, []);
-
   const abrirModalParaAgregar = () => {
     setProductoActual({
-      id: cuentaID,
+      id: crypto.randomUUID(),
       nombre: '',
       descripcion: '',
       cantidad: 0,
@@ -63,7 +96,6 @@ export const InventarioPage = () => {
       proveedor: '',
       img: null
     });
-    setCuentaID(cuentaID+1)
     setModoEdicion(false);
     setMostrarModal(true);
   };
@@ -75,22 +107,25 @@ export const InventarioPage = () => {
   };
 
   const eliminarProducto = () => {
-  if (productoAEliminar) {
-    setListaProductos(listaProductos.filter(p => p.id !== productoAEliminar.id));
-    editProd(listaProductos);
-    setProductoAEliminar(null);
-    setMostrarConfirmacion(false);
-  }
-};
+    if (productoAEliminar) {
+      const nuevaLista = listaProductos.filter(p => p.id !== productoAEliminar.id);
+      setListaProductos(nuevaLista);
+      setProductoAEliminar(null);
+      setMostrarConfirmacion(false);
+    }
+  };
 
-const confirmarEliminacion = (producto: Producto) => {
-  setProductoAEliminar(producto);
-  setMostrarConfirmacion(true);
-};
+  const confirmarEliminacion = (producto: Producto) => {
+    setProductoAEliminar(producto);
+    setMostrarConfirmacion(true);
+  };
 
   const manejarCambio = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setProductoActual({ ...productoActual, [name]: name === 'cantidad' || name.includes('precio') ? parseFloat(value) : value });
+    setProductoActual({
+      ...productoActual,
+      [name]: name === 'cantidad' || name.includes('precio') ? parseFloat(value) : value
+    });
   };
 
   const manejarImagen = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,13 +139,14 @@ const confirmarEliminacion = (producto: Producto) => {
     }
   };
 
-  const guardarProducto =  () => {
+  const guardarProducto = () => {
+    let nuevaLista: Producto[];
     if (modoEdicion) {
-      setListaProductos(listaProductos.map(p => (p.id === productoActual.id ? productoActual : p)));
+      nuevaLista = listaProductos.map(p => (p.id === productoActual.id ? productoActual : p));
     } else {
-      setListaProductos([...listaProductos, productoActual]);
+      nuevaLista = [...listaProductos, productoActual];
     }
-    editProd(listaProductos);
+    setListaProductos(nuevaLista);
     setMostrarModal(false);
   };
 
@@ -118,17 +154,17 @@ const confirmarEliminacion = (producto: Producto) => {
     <div className="container mt-4">
       <h1>Inventario de Productos</h1>
       <Row className="mb-3 justify-content-between align-items-center px-3">
-  <Col xs="auto">
-    <Button onClick={() => abrirModalParaAgregar()} variant="primary">
-      Agregar producto
-    </Button>
-  </Col>
-  <Col xs="auto">
-    <Button onClick={() => navigate('/historial-salidas')} variant="outline-secondary">
-      Historial de salidas
-    </Button>
-  </Col>
-</Row>
+        <Col xs="auto">
+          <Button onClick={abrirModalParaAgregar} variant="primary">
+            Agregar producto
+          </Button>
+        </Col>
+        <Col xs="auto">
+          <Button onClick={() => navigate('/historial-salidas')} variant="outline-secondary">
+            Historial de salidas
+          </Button>
+        </Col>
+      </Row>
 
       <Table striped bordered hover>
         <thead>
@@ -261,23 +297,22 @@ const confirmarEliminacion = (producto: Producto) => {
       </Modal>
 
       <Modal show={mostrarConfirmacion} onHide={() => setMostrarConfirmacion(false)}>
-  <Modal.Header closeButton>
-    <Modal.Title>Confirmar eliminación</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    ¿Estás seguro de que deseas eliminar el producto{' '}
-    <strong>{productoAEliminar?.nombre}</strong>?
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setMostrarConfirmacion(false)}>
-      Cancelar
-    </Button>
-    <Button variant="danger" onClick={eliminarProducto}>
-      Eliminar
-    </Button>
-  </Modal.Footer>
-</Modal>
-
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Estás seguro de que deseas eliminar el producto{' '}
+          <strong>{productoAEliminar?.nombre}</strong>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setMostrarConfirmacion(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={eliminarProducto}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
