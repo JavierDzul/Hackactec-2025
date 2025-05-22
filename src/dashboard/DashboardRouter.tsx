@@ -4,6 +4,7 @@ import { Contabilidad } from "./pages/Contabilidad";
 import { InventarioPage, type Producto } from "./pages/Inventario";
 import { VentasPage } from "./pages/Ventas";
 import { VentaDetallePage } from "./pages/DetalleVenta";import Facturacion from "./pages/Facturacion";
+import { HistorialSalidasPage } from "./pages/HistorialSalidas";
 
 
 export const DashboardRoutes = () => {
@@ -19,6 +20,7 @@ export const DashboardRoutes = () => {
         <Route path="/ventas" element={<VentasPage/>}/>
         <Route path="/detalle-venta" element={<VentaDetallePage/>}/>
         <Route path="/facturacion" element={<Facturacion />} />
+        <Route path="/historial-salidas" element={<HistorialSalidasPage />} />
        
         </Routes>
       </DashboardLayout>
