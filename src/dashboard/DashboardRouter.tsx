@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { DashboardLayout } from "./layouts/DashboardLayout";
-import { Contabilidad } from "./pages/Contabilidad";
 import FinancialProjectionDashboardToursFinal from "./pages/Proyecciones";
 import FinancialProjectionDashboardRechartsPlus from "./pages/ProyeccionesDificil";
 import EnhancedCashFlowDashboard from "./pages/flujo";
@@ -14,6 +13,7 @@ import ClienteComponenteDemo from "./pages/cliente";
 import OptimizacionRecursosMIPYMEDashboard from "./pages/optimizacion";
 import GestionRiesgosResilienciaDashboard from "./pages/riesgos";
 import PanelHomeMipymes from "./pages/home";
+import ContabilidadDashboard from "./pages/Contabilidad";
 
 
 export const DashboardRoutes = () => {
@@ -25,7 +25,7 @@ export const DashboardRoutes = () => {
         <Routes>
         <Route path="/riesgos" element={<GestionRiesgosResilienciaDashboard />} />
 
-        <Route path="/contabilidad" element={<Contabilidad />} />
+        <Route path="/contabilidad" element={<ContabilidadDashboard />} />
         <Route path="/Proyecciones" element={<FinancialProjectionDashboardToursFinal />} />
         <Route path="/ProyeccionesC" element={<FinancialProjectionDashboardRechartsPlus />} />
         <Route path="/Flujo" element={<EnhancedCashFlowDashboard />} />
