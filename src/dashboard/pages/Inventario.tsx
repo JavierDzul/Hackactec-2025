@@ -119,7 +119,7 @@ const confirmarEliminacion = (producto: Producto) => {
       <h1>Inventario de Productos</h1>
       <Row className="mb-3 justify-content-between align-items-center px-3">
   <Col xs="auto">
-    <Button onClick={() => setMostrarModal(true)} variant="primary">
+    <Button onClick={() => abrirModalParaAgregar()} variant="primary">
       Agregar producto
     </Button>
   </Col>

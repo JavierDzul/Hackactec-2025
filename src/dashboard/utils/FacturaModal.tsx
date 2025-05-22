@@ -1,7 +1,7 @@
 import  { useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { createFactura } from "../functions/createFactura";
-import type { Factura, Issuer, Receiver, Item, Tax, TaxStamp } from "../pages/Facturacion";
+import type { Factura, Issuer, Receiver, Item, Tax, TaxStamp } from "../pages/fact";
 import { v4 as uuidv4 } from "uuid"; // Instala con npm i uuid si no lo tienes
 
 interface FacturaModalProps {

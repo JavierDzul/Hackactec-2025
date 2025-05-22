@@ -7,6 +7,7 @@ const sidebarLinks = [
     {id: "clientes", to: "/clientes", label: "Clientes" }, // Enlace sin subenlaces
 
     { id: "inventario", to: "/inventario", label: "Inventario" },
+    { id: "servicios", to: "/servicios", label: "Servicios" },
     { id: "ventas", to: "/ventas", label: "Ventas" },
     { id: "facturacion", to: "/facturacion", label: "Facturación" },
 

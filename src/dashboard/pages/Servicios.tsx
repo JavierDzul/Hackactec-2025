@@ -1,0 +1,247 @@
+import { Container, Table, Button, Row, Col, Form, Modal } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { edirServ } from '../NavBar';
+
+export interface Servicio {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  fecha: string;
+  cobro: number;
+  costo: number;
+}
+
+
+export const ServiciosPage = () => {
+    
+    const [mostrarModal, setMostrarModal] = useState(false);
+    const [modoEdicion, setModoEdicion] = useState(false);
+
+    const [listaServicios, setListaServicios] = useState<Servicio[]>([{
+    id: 0,
+            nombre: '',
+            descripcion: "",
+            fecha: '',
+            cobro: 0,
+            costo: 0
+    }]);
+
+      const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+      const [servicioAEliminar, setServicioAEliminar] = useState<Servicio | null>(null);
+      
+      const [cuentaID, setCuentaID] = useState(3);
+      const [servicioActual, setServicioActual] = useState<Servicio>({
+        id: 0,
+        nombre: '',
+        descripcion: "",
+        fecha: '',
+        cobro: 0,
+        costo: 0
+      });
+
+      useEffect(() => {
+        const datosGuardados = localStorage.getItem('servicios');
+        if (datosGuardados) {
+          setListaServicios(JSON.parse(datosGuardados));
+          setCuentaID(listaServicios.length+2)
+        }
+        }, []);
+
+
+
+ const guardarServicio =  () => {
+    if (modoEdicion) {
+      setListaServicios(listaServicios.map(p => (p.id === servicioActual.id ? servicioActual : p)));
+    } else {
+      setListaServicios([...listaServicios, servicioActual]);
+    }
+    edirServ(listaServicios);
+    setMostrarModal(false);
+  };
+
+  const abrirModalParaAgregar = () => {
+    setServicioActual({
+      id: cuentaID,
+        nombre: '',
+        descripcion: "",
+        fecha: '',
+        cobro: 0,
+        costo: 0
+    });
+    setCuentaID(cuentaID+1)
+    setModoEdicion(false);
+    setMostrarModal(true);
+  };
+
+  const abrirModalParaEditar = (servicio: Servicio) => {
+      setServicioActual(servicio);
+      setModoEdicion(true);
+      setMostrarModal(true);
+    };
+
+    const confirmarEliminacion = (servicio: Servicio) => {
+      setServicioAEliminar(servicio);
+      setMostrarConfirmacion(true);
+    };
+
+    const eliminarServicio = () => {
+      if (servicioAEliminar) {
+        setListaServicios(listaServicios.filter(p => p.id !== servicioAEliminar.id));
+        edirServ(listaServicios);
+        setServicioAEliminar(null);
+        setMostrarConfirmacion(false);
+      }
+    };
+
+    const manejarCambio = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setServicioActual({ ...servicioActual, [name]: name === 'cantidad' || name.includes('precio') ? parseFloat(value) : value });
+  };
+
+  return (
+    <Container fluid className="p-4">
+      <Row className="mb-4">
+        <Col>
+          <h3>Servicios</h3>
+        </Col>
+      </Row>
+
+      <Row className="mb-3 justify-content-between align-items-center px-3">
+            <Col xs="auto">
+                <Button onClick={() => abrirModalParaAgregar()} variant="primary">
+                Agregar servicio
+                </Button>
+            </Col>
+        </Row>
+
+      <Table bordered hover responsive>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Servicio</th>
+            <th>Descripción</th>
+            <th>Fecha</th>
+            <th>Cobro del servicio</th>
+            <th>Costo por servir</th>
+            <th>Acciones</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          {listaServicios.map((s) => (
+            <tr key={s.id}>
+              <td>{s.id}</td>
+              <td>{s.nombre}</td>
+              <td>{s.descripcion}</td>
+              <td>{s.fecha}</td>
+              <td>${parseFloat(s.cobro.toString()).toFixed(2)}</td>
+              <td>${parseFloat(s.costo.toString()).toFixed(2)}</td>
+              
+
+
+              <td>
+                <Button variant="warning" onClick={() => abrirModalParaEditar(s)}>
+                  Editar
+                </Button>
+                <Button variant="danger" className="ms-2" onClick={() => confirmarEliminacion(s)}>
+                  Eliminar
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+        <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{modoEdicion ? 'Editar Servicio' : 'Agregar Servicio'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="nombre">
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type="text"
+                name="nombre"
+                value={servicioActual.nombre}
+                onChange={manejarCambio}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="descripcion" className="mt-3">
+              <Form.Label>Descripción</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                name="descripcion"
+                value={servicioActual.descripcion}
+                onChange={manejarCambio}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="fecha">
+              <Form.Label>Fecha</Form.Label>
+              <Form.Control
+                type="text"
+                name="fecha"
+                value={servicioActual.fecha}
+                onChange={manejarCambio}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="cobro" className="mt-3">
+              <Form.Label>Cobro</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                name="cobro"
+                value={servicioActual.cobro}
+                onChange={manejarCambio}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="costo" className="mt-3">
+              <Form.Label>Costo</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                name="costo"
+                value={servicioActual.costo}
+                onChange={manejarCambio}
+              />
+            </Form.Group>
+
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setMostrarModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={guardarServicio}>
+            Guardar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+<Modal show={mostrarConfirmacion} onHide={() => setMostrarConfirmacion(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Confirmar eliminación</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    ¿Estás seguro de que deseas eliminar el servicio{' '}
+    <strong>{servicioAEliminar?.nombre}</strong>?
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setMostrarConfirmacion(false)}>
+      Cancelar
+    </Button>
+    <Button variant="danger" onClick={eliminarServicio}>
+      Eliminar
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
+    </Container>
+  );
+};
