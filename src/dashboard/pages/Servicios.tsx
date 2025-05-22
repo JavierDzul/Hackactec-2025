@@ -2,6 +2,9 @@ import { Container, Table, Button, Row, Col, Form, Modal, Card, Alert, Stack } f
 import { useEffect, useState, useCallback } from 'react';
 import { edirServ } from '../NavBar'; // Asumo que esta es tu función para guardar en localStorage
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaExclamationTriangle, FaClipboardList, FaBoxOpen } from 'react-icons/fa';
+import { FacturaModalInternal, type Factura, type Item as FacturaItem, type Tax as FacturaTax, type TaxStamp as FacturaTaxStamp, type Issuer as FacturaIssuer, type Receiver as FacturaReceiver } from './fact'; // Asegúrate que la ruta y tipos sean correctos
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export interface Servicio {
   id: number;
@@ -10,6 +13,7 @@ export interface Servicio {
   fecha: string; // Mantendremos string, pero el default será YYYY-MM-DD
   cobro: number;
   costo: number;
+  factura: Factura|null
 }
 
 // Estado inicial para un nuevo servicio o para el formulario
@@ -20,6 +24,7 @@ const initialServicioState: Servicio = {
   fecha: new Date().toISOString().split('T')[0], // Default a hoy en YYYY-MM-DD
   cobro: 0,
   costo: 0,
+  factura: null
 };
 
 export const ServiciosPage = () => {
@@ -30,6 +35,19 @@ export const ServiciosPage = () => {
   const [servicioAEliminar, setServicioAEliminar] = useState<Servicio | null>(null);
   const [cuentaID, setCuentaID] = useState(1); // Siguiente ID a usar
   const [servicioActual, setServicioActual] = useState<Servicio>(initialServicioState);
+  const [servicioParaFacturar, setServicioParaFacturar] = useState<Servicio | null>(null);
+    const [facturaActualParaModal, setFacturaActualParaModal] = useState<Factura | null>(null);
+    const [showFacturaModal, setShowFacturaModal] = useState<boolean>(false);
+
+  const handleOpenFacturaModal = useCallback((servicio: Servicio, esNueva: boolean) => {
+      setServicioParaFacturar(servicio);
+      if (esNueva) {
+        setFacturaActualParaModal(null); // Para generar una nueva factura
+      } else {
+        setFacturaActualParaModal(servicio.factura); // Para ver/editar una factura existente
+      }
+      setShowFacturaModal(true);
+    }, []);
 
   useEffect(() => {
     const datosGuardados = localStorage.getItem('servicios');
@@ -90,11 +108,30 @@ export const ServiciosPage = () => {
     setMostrarModal(true);
   }, [cuentaID]);
 
+  const handleCloseFacturaModal = useCallback(() => {
+      setShowFacturaModal(false);
+      setServicioParaFacturar(null);
+      setFacturaActualParaModal(null);
+    }, []);
+
   const abrirModalParaEditar = useCallback((servicio: Servicio) => {
     setServicioActual(servicio);
     setModoEdicion(true);
     setMostrarModal(true);
   }, []);
+
+  const handleSaveFacturaFromModal = useCallback((facturaGuardada: Factura) => {
+      if (servicioParaFacturar) {
+        setListaServicios(prevSalidas =>
+          prevSalidas.map(s =>
+            s.id === servicioParaFacturar.id
+              ? { ...s, facturado: true, factura: facturaGuardada }
+              : s
+          )
+        );
+      }
+      handleCloseFacturaModal();
+    }, [servicioParaFacturar, handleCloseFacturaModal]);
 
   const confirmarEliminacion = useCallback((servicio: Servicio) => {
     setServicioAEliminar(servicio);
@@ -111,6 +148,172 @@ export const ServiciosPage = () => {
     }
   }, [listaServicios, servicioAEliminar, guardarServiciosEnStorage]);
 
+  const exportFacturaToPDF = (factura: Factura) => {
+      const doc = new jsPDF("p", "mm", "a4");
+      // ... (resto del código de exportFacturaToPDF sin cambios) ...
+      // Header
+      doc.setFillColor(41, 128, 185);
+      doc.rect(0, 0, 210, 30, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Factura ${factura.serie}-${factura.folio}`, 14, 20);
+  
+      // Datos generales
+      let y = 38;
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "bold");
+      doc.text("Datos Generales", 14, y);
+      y += 10;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("Fecha:", 14, y);
+      doc.text(`${new Date(factura.fecha).toLocaleDateString()}`, 50, y);
+      y += 8;
+      doc.text("Estado:", 14, y);
+      doc.text(`${factura.estado}`, 50, y);
+      y += 8;
+      doc.text("Cliente:", 14, y);
+      doc.text(`${factura.receiver.name}`, 50, y);
+      y += 8;
+      doc.text("RFC:", 14, y);
+      doc.text(`${factura.receiver.rfc}`, 50, y);
+      y += 8;
+      doc.text("Método de Pago:", 14, y);
+      doc.text(`${factura.paymentMethod}`, 50, y);
+      y += 8;
+      doc.text("Condiciones:", 14, y);
+      doc.text(`${factura.paymentConditions}`, 50, y);
+      y += 8;
+      doc.text("Moneda:", 14, y);
+      doc.text(`${factura.currency}`, 50, y);
+      y += 8;
+      doc.text("Lugar de Expedición:", 14, y);
+      doc.text(`${factura.expeditionPlace}`, 50, y);
+  
+      // Emisor
+      y += 12;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Emisor", 14, y);
+      y += 10;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("Nombre:", 14, y);
+      doc.text(`${factura.issuer.taxName}`, 50, y);
+      y += 8;
+      doc.text("RFC:", 14, y);
+      doc.text(`${factura.issuer.rfc}`, 50, y);
+      y += 8;
+      doc.text("Régimen Fiscal:", 14, y);
+      doc.text(`${factura.issuer.fiscalRegime}`, 50, y);
+  
+      // Subtotales y totales
+      y += 12;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Totales", 14, y);
+      y += 10;
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text("Subtotal:", 14, y);
+      doc.text(`$${factura.subtotal.toFixed(2)}`, 50, y);
+      y += 8;
+      doc.text("Descuento:", 14, y);
+      doc.text(`$${factura.discount.toFixed(2)}`, 50, y);
+      y += 8;
+      doc.setFont("helvetica", "bold");
+      doc.text("Total:", 14, y);
+      doc.text(`$${factura.total.toFixed(2)}`, 50, y);
+      doc.setFont("helvetica", "normal");
+  
+      // Conceptos
+      y += 12;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Conceptos", 14, y);
+      y += 4;
+  
+      autoTable(doc, {
+        startY: y,
+        head: [[
+          "Descripción",
+          "Cantidad",
+          "Unidad",
+          "Unitario",
+          "Desc.",
+          "Total"
+        ]],
+        body: factura.items.map((item: FacturaItem) => [ // Asegúrate que FacturaItem esté definido
+          item.description,
+          item.quantity,
+          item.unit,
+          `$${item.unitValue.toFixed(2)}`,
+          `$${item.discount.toFixed(2)}`,
+          `$${item.total.toFixed(2)}`
+        ]),
+        styles: { fontSize: 9, cellPadding: 2 },
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        alternateRowStyles: { fillColor: [240, 248, 255] },
+        margin: { left: 14, right: 14 }
+      });
+  
+      // Impuestos (si existen)
+      if (factura.taxes && factura.taxes.length > 0) {
+        let yImp = (doc as any).lastAutoTable.finalY + 12;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(41, 128, 185);
+        doc.text("Impuestos", 14, yImp);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        factura.taxes.forEach((tax: FacturaTax, idx: number) => { // Asegúrate que FacturaTax esté definido
+          doc.text(
+            `${tax.name} (${tax.rate}%): $${tax.total.toFixed(2)} (${tax.type === "transferred" ? "TRASLADADO" : tax.type.toUpperCase()})`,
+            25,
+            yImp + 8 + idx * 8
+          );
+        });
+      }
+  
+      // Timbre fiscal (si existe)
+      if (factura.taxStamp) {
+        let yTimbre = (doc as any).lastAutoTable.finalY + 32;
+         // Ajuste dinámico de yTimbre en caso de que no haya impuestos o haya muchos.
+        if ((doc as any).lastAutoTable.finalY > 180 && factura.taxes && factura.taxes.length > 0) { 
+            doc.addPage();
+            yTimbre = 20; 
+        } else if ((doc as any).lastAutoTable.finalY > 220 ) {
+            doc.addPage();
+            yTimbre = 20;
+        }
+  
+        doc.setFontSize(10);
+        doc.setTextColor(150, 150, 150);
+        doc.setFont("helvetica", "bold");
+        doc.text("Timbre Fiscal Digital", 14, yTimbre);
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          `UUID: ${factura.taxStamp.uuid}`,
+          14,
+          yTimbre + 8
+        );
+        doc.text(
+          `Certificado SAT: ${factura.taxStamp.satCertNumber}`,
+          14,
+          yTimbre + 16
+        );
+        doc.text(
+          `Fecha: ${new Date(factura.taxStamp.date).toLocaleString()}`,
+          14,
+          yTimbre + 24
+        );
+      }
+      doc.save(`Factura_${factura.serie}-${factura.folio}.pdf`);
+  };
+
   const manejarCambio = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setServicioActual(prev => {
@@ -121,6 +324,8 @@ export const ServiciosPage = () => {
       return { ...prev, [name]: value };
     });
   }, []);
+
+  
 
   const handleCloseModal = useCallback(() => setMostrarModal(false), []);
   const handleCloseConfirmacion = useCallback(() => setMostrarConfirmacion(false), []);
@@ -173,6 +378,17 @@ export const ServiciosPage = () => {
                         <Button variant="outline-danger" size="sm" onClick={() => confirmarEliminacion(s)}>
                           <FaTrash className="me-1" /> Eliminar
                         </Button>
+                        {(
+                            s.factura ? (
+                              <Button size="sm" variant="outline-success" onClick={() => exportFacturaToPDF(s.factura!)} title="Ver Factura PDF">
+                                 Factura PDF
+                              </Button>
+                            ) : (
+                              <Button size="sm" variant="primary" onClick={() => handleOpenFacturaModal(s, true)} title="Generar Nueva Factura">
+                                <FaPlus className="me-1" /> Facturar
+                              </Button>
+                            )
+                          )}
                       </Stack>
                     </td>
                   </tr>
@@ -292,6 +508,18 @@ export const ServiciosPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <FacturaModalInternal
+                show={showFacturaModal}
+                onClose={handleCloseFacturaModal}
+                onSave={handleSaveFacturaFromModal}
+                initialFactura={facturaActualParaModal || undefined} // undefined para nueva factura
+                // Podrías pasar datos de `salidaParaFacturar` a `FacturaModalInternal`
+                // para pre-llenar la factura, ej. `clientName={salidaParaFacturar.cliente}`
+                // o `items={[{ description: salidaParaFacturar.nombreProducto, quantity: salidaParaFacturar.cantidad, unitValue: salidaParaFacturar.costoTotal / salidaParaFacturar.cantidad, ... }]}`
+                // Esto requeriría que FacturaModalInternal acepte estas props.
+                // Por ahora, se asume que FacturaModalInternal maneja la creación de items.
+              />
     </Container>
   );
 };
