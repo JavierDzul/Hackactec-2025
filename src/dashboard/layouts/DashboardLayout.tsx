@@ -12,7 +12,7 @@ export const DashboardLayout: FC<Props> = ({ children }) => {
       <NavBar />
       <div className="d-flex">
         <Sidebar />
-        <main className="flex-grow-1" style={{ marginLeft: 188 }}>
+        <main className="flex-grow-1" style={{ marginLeft: 188, marginTop:40}}>
           <div className="container-fluid">
             { children }
           </div>

@@ -130,7 +130,7 @@ const PanelHomeMipymesPlus: React.FC = () => {
         <Col>
           <Card className="shadow-sm">
             <Card.Header as="h4" className="header-main d-flex align-items-center justify-content-between">
-              <div><FaHome className="me-2" /> Panel Estratégico MIPYME</div>
+              <div><FaHome className="me-2" /> Panel Estratégico </div>
               <div className="text-end">
                 <small className="d-block text-muted" style={{fontSize: '0.75rem'}}>Usuario: {CURRENT_USER_LOGIN}</small>
                 <small className="d-block text-muted" style={{fontSize: '0.75rem'}}>Actualizado: {CURRENT_DATE_UTC}</small>
@@ -306,7 +306,7 @@ const PanelHomeMipymesPlus: React.FC = () => {
           
           <Card className="shadow-sm">
             <Card.Header as="h6" className="bg-light text-primary d-flex align-items-center">
-              <FaFire className="me-2" /> Impacto de Temporadas (Conceptual)
+              <FaFire className="me-2" /> Impacto de Temporadas 
             </Card.Header>
             <Card.Body className="p-0">
                 <Table striped hover responsive size="sm" className="small mb-0">

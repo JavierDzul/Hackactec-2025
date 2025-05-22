@@ -14,6 +14,7 @@ import OptimizacionRecursosMIPYMEDashboard from "./pages/optimizacion";
 import GestionRiesgosResilienciaDashboard from "./pages/riesgos";
 import PanelHomeMipymes from "./pages/home";
 import ContabilidadDashboard from "./pages/Contabilidad";
+import { EmpresaDashboardPage } from "./pages/perfil";
 
 
 export const DashboardRoutes = () => {
@@ -39,6 +40,7 @@ export const DashboardRoutes = () => {
        
         <Route path="/optimizacion" element={<OptimizacionRecursosMIPYMEDashboard />} />
         <Route path="/" element={<PanelHomeMipymes />} />
+        <Route path="/perfil" element={<EmpresaDashboardPage />} />
 
         </Routes>
       </DashboardLayout>
