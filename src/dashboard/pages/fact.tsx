@@ -175,7 +175,7 @@ const FacturaModalInternal: React.FC<{ show: boolean; onClose: () => void; onSav
   return (
     <Modal show={show} onHide={onClose} size="lg" backdrop="static">
       <Modal.Header closeButton>
-        <Modal.Title>{initialFactura?.uuid ? "Editar Factura" : "Nueva Factura (Simulada)"}</Modal.Title>
+        <Modal.Title>{initialFactura?.uuid ? "Editar Factura" : "Nueva Factura"}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>

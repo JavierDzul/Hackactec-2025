@@ -46,11 +46,11 @@ function NavBar() {
       <div className="container">
        
         <div className="d-flex align-items-center ms-auto">
-          <Link className="nav-link text-white fw-semibold d-flex align-items-center" to="/micuenta">
+          <Link className="nav-link text-white fw-semibold d-flex align-items-center m-1" to="/micuenta">
             <FaUserCircle size={22} className="me-1" />
             MiCuenta
           </Link>
-          <Link className="nav-link text-white fw-semibold d-flex align-items-center" to="/carrito">
+          <Link className="nav-link text-white fw-semibold d-flex align-items-center m-1" to="/carrito">
             <FaShoppingCart size={22} className="me-1" />
             Carrito
           </Link>
