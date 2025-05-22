@@ -7,8 +7,8 @@ import { InventarioPage, type Producto } from "./pages/Inventario";
 import { VentasPage } from "./pages/Ventas";
 import { VentaDetallePage } from "./pages/DetalleVenta";import Facturacion from "./pages/Facturacion";
 import { HistorialSalidasPage } from "./pages/HistorialSalidas";
-//import TaxAndFinancingIntegrationDashboard from "./pages/fact";
-//import ClienteComponenteDemo from "./pages/cliente";
+import TaxAndFinancingIntegrationDashboard from "./pages/fact";
+import ClienteComponenteDemo from "./pages/cliente";
 import ContabilidadDashboard from "./pages/Contabilidad";
 
 
