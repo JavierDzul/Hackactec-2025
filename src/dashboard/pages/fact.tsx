@@ -255,6 +255,7 @@ export const FacturaModalInternal: React.FC<{ show: boolean; onClose: () => void
 
 
 const TaxAndFinancingIntegrationDashboardWithInvoicing: React.FC = () => {
+  
   // Estados del dashboard original
   const [satConnected, setSatConnected] = useState<boolean>(true);
   const [lastSync, setLastSync] = useState<string>(new Date().toLocaleString());
