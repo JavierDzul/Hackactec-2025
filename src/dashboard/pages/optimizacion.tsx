@@ -83,7 +83,7 @@ const OptimizacionRecursosMIPYMEDashboard: React.FC = () => {
         ...cat,
         porcentaje: (cat.asignado / presupuestoTotal) * 100
     })));
-  }, [categoriasPresupuesto, presupuestoTotal]);
+  }, [, presupuestoTotal]);
 
   const handlePrioridadChange = (id: PrioridadOptimizacion['id']) => {
     setPrioridadesOptimizacion(prev => prev.map(p => p.id === id ? { ...p, activa: !p.activa } : p));
