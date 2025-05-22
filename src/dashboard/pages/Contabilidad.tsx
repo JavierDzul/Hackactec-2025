@@ -4,32 +4,33 @@ import { BarChart, Bar, PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianG
 
 const ContabilidadDashboard = () => {
   // Datos simulados
+  
   const [cashFlow] = useState([
-    { month: 'Ene', ingresos: 145300, gastos: 98300 },
-    { month: 'Feb', ingresos: 162450, gastos: 112400 },
-    { month: 'Mar', ingresos: 158900, gastos: 105600 },
-    { month: 'Abr', ingresos: 174200, gastos: 98700 },
-    { month: 'May', ingresos: 189500, gastos: 132000 },
+    { month: 'Ene', ingresos: 14500, gastos: 9300 },
+    { month: 'Feb', ingresos: 16450, gastos: 11400 },
+    { month: 'Mar', ingresos: 15900, gastos: 10600 },
+    { month: 'Abr', ingresos: 17200, gastos: 9700 },
+    { month: 'May', ingresos: 18500, gastos: 13000 },
   ]);
 
   const [accounts] = useState([
-    { name: 'Caja Chica', balance: 25000, type: 'efectivo' },
-    { name: 'Banco Principal', balance: 1450000, type: 'cuenta' },
-    { name: 'Inversiones', balance: 750000, type: 'inversion' },
+    { name: 'Caja Chica', balance: 2500, type: 'efectivo' },
+    { name: 'Banco Principal', balance: 145000, type: 'cuenta' },
+    { name: 'Inversiones', balance: 7000, type: 'inversion' },
   ]);
 
   const [transactions] = useState([
-    { date: '2024-05-15', description: 'Pago cliente XYZ', amount: 45000, type: 'ingreso' },
+    { date: '2024-05-15', description: 'Pago cliente XYZ', amount: 4000, type: 'ingreso' },
     { date: '2024-05-14', description: 'Servicios cloud', amount: 1200, type: 'gasto' },
     { date: '2024-05-13', description: 'Equipo oficina', amount: 8500, type: 'gasto' },
-    { date: '2024-05-12', description: 'Venta producto A', amount: 23700, type: 'ingreso' },
+    { date: '2024-05-12', description: 'Venta producto A', amount: 2300, type: 'ingreso' },
   ]);
 
   const [budgets] = useState([
-    { category: 'Marketing', budget: 50000, actual: 48700 },
-    { category: 'TI', budget: 30000, actual: 31200 },
-    { category: 'RRHH', budget: 45000, actual: 42900 },
-    { category: 'Operaciones', budget: 75000, actual: 69800 },
+    { category: 'Marketing', budget: 5000, actual: 4700 },
+    { category: 'TI', budget: 3000, actual: 3200 },
+    { category: 'RRHH', budget: 4000, actual: 4900 },
+    { category: 'Operaciones', budget: 7500, actual: 6900 },
   ]);
 
   // Configuración de estilo
@@ -54,14 +55,14 @@ const ContabilidadDashboard = () => {
                 </div>
                 <div>
                   <small className="text-muted">Liquidez Total</small>
-                  <h3 className="mb-0">$1,725,000</h3>
+                  <h3 className="mb-0">$725,000</h3>
                 </div>
               </div>
               <hr />
               <div className="d-flex justify-content-between">
                 <div>
                   <small className="text-muted">Disponible</small>
-                  <div className="fs-5">$1,235,000</div>
+                  <div className="fs-5">$235,000</div>
                 </div>
                 <div>
                   <small className="text-muted">Invertido</small>
@@ -101,6 +102,7 @@ const ContabilidadDashboard = () => {
                 </div>
                 <Button variant="outline-primary" size="sm">
                   <i className="bi bi-download me-2"></i>Reporte
+
                 </Button>
               </div>
               <div style={{ height: '120px' }}>
