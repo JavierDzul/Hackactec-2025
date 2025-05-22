@@ -1,28 +1,23 @@
-
 import type { FC } from "react";
 import NavBar from "../NavBar";
-import type { Producto } from "../pages/Inventario";
+import Sidebar from "../SideBar";
+
 interface Props {
     children: React.ReactNode; 
 }
 
-
 export const DashboardLayout: FC<Props> = ({ children }) => {
   return (
     <div>
-        <div>
-
-            <NavBar />
-
-
-            <main>
-                <div className="container-fluid">
-                    { children }
-                </div>
-            </main>
-
-        </div>
-
+      <NavBar />
+      <div className="d-flex">
+        <Sidebar />
+        <main className="flex-grow-1" style={{ marginLeft: 240 }}>
+          <div className="container-fluid">
+            { children }
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
