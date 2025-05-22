@@ -100,7 +100,7 @@ const modelingInputs = {
 };
 
 const KPISection = () => {
-  const formatCurrency = (value) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(value);
+  const formatCurrency = (value: number | bigint) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(value);
   
   return (
     <Row className="mb-4">
@@ -140,7 +140,7 @@ const KPISection = () => {
   );
 };
 
-const formatCurrencyTooltip = (value) =>
+const formatCurrencyTooltip = (value: any) =>
   new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(Number(value));
 
 const CashFlowChart = () => {
@@ -203,7 +203,7 @@ const ModelingFactors = () => {
 };
 
 const AlertsDisplay = () => {
-  const getAlertVariant = (severity) => {
+  const getAlertVariant = (severity: string) => {
     if (severity === 'danger') return 'danger';
     if (severity === 'warning') return 'warning';
     return 'info';
@@ -247,8 +247,7 @@ const AlertsDisplay = () => {
 const ExperimentalDisclaimer = () => (
   <Alert variant="secondary" className="mt-4 mb-4 shadow-sm border">
     <i className="bi bi-exclamation-diamond-fill me-2"></i>
-    <strong>IMPORTANTE:</strong> Este dashboard utiliza tecnología experimental de pronóstico financiero basada en datos históricos, modelado avanzado y aprendizaje automático. Los resultados presentados son estimaciones y <b>no deben considerarse como asesoramiento financiero profesional</b>. <br />
-    <b>Utilice la información bajo su propio juicio y responsabilidad.</b> Recomendamos consultar con expertos antes de tomar decisiones críticas basadas en estos pronósticos.
+    <strong>IMPORTANTE:</strong> Este sistema utiliza tecnología experimental de pronóstico financiero basada en datos históricos, modelado avanzado y aprendizaje automático. Los resultados presentados son estimaciones y <b>no deben considerarse como asesoramiento financiero profesional</b>. <br />
   </Alert>
 );
 
@@ -258,7 +257,7 @@ const EnhancedCashFlowDashboard = () => {
     <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8f9fa' }}>
       <Row className="justify-content-center mb-4">
         <Col md={12} className="text-center">
-          <h1 className="display-5"><i className="bi bi-bar-chart-line-fill me-2"></i>Dashboard Avanzado de Flujo de Efectivo</h1>
+          <h1 className="display-5"><i className="bi bi-bar-chart-line-fill me-2"></i>Pronostico de Flujo de Efectivo</h1>
           <p className="lead text-muted">Análisis predictivo y monitoreo en tiempo real para la toma de decisiones financieras estratégicas.</p>
         </Col>
       </Row>
