@@ -1,138 +1,132 @@
 import React from 'react';
 import { Container, Row, Col, Card, ListGroup, Alert, Badge, Accordion } from 'react-bootstrap';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { FaDollarSign, FaCalendarAlt, FaChartLine, FaExclamationTriangle, FaExclamationCircle, FaInfoCircle, FaClock, FaCalendarWeek, FaBullhorn, FaFlask, FaCloudSun, FaLightbulb, FaShieldAlt, FaUniversity, FaIndustry, FaUsers, FaStore, FaFileInvoiceDollar, FaHandHoldingUsd } from 'react-icons/fa'; // Usando react-icons para consistencia
+const formatCurrencyMxn = (value: number | bigint) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(value));
 
-// --- Datos Simulados Mejorados ---
+// --- Datos Simulados Mejorados y Realistas para MIPYME (MXN) ---
+const FECHA_ACTUAL_UTC = "2025-05-22 08:19:28"; // UTC Date from prompt
+const USUARIO_ACTUAL = "rafaello129";
 
 const kpiData = {
-  currentBalance: 125670.50,
-  nextCriticalDate: '2025-07-15',
-  criticalReason: 'Pago importante a proveedor',
-  avgMonthlyNetFlow: 7500.00,
-  burnRate: -2500.00,
+  currentBalance: 85750.75, // Saldo actual en MXN
+  nextCriticalDate: '2025-07-10', // Fecha crítica realista
+  criticalReason: 'Pago de nómina quincenal y renta de local',
+  avgMonthlyNetFlow: 12500.00, // Flujo neto mensual promedio MXN
+  burnRate: -18500.00, // Tasa de gasto mensual si los ingresos fueran cero MXN
+  runwayMonths: 4.6, // Meses de operación restantes con el saldo actual si no hay ingresos (Saldo / BurnRate absoluto)
   alertsCount: { critical: 1, warning: 2, info: 1 }
 };
 
 const cashFlowData = [
-  { month: 'Ene', flujoProyectado: 45000, flujoReal: 46500 },
-  { month: 'Feb', flujoProyectado: 42000, flujoReal: 41500 },
-  { month: 'Mar', flujoProyectado: 50000, flujoReal: 51200 },
-  { month: 'Abr', flujoProyectado: 35000, flujoReal: 33800, evento: 'Inicio Temporada Baja' },
-  { month: 'May', flujoProyectado: 38000, flujoReal: 39500 },
-  { month: 'Jun', flujoProyectado: 55000, flujoReal: 53800, evento: 'Festival Anual' },
-  { month: 'Jul', flujoProyectado: 48000, flujoReal: null },
-  { month: 'Ago', flujoProyectado: 47000, flujoReal: null },
-  { month: 'Sep', flujoProyectado: 52000, flujoReal: null },
-  { month: 'Oct', flujoProyectado: 58000, flujoReal: null, evento: 'Pico Turístico Otoño' },
-  { month: 'Nov', flujoProyectado: 40000, flujoReal: null },
-  { month: 'Dic', flujoProyectado: 65000, flujoReal: null, evento: 'Temporada Navideña' },
+  // Datos históricos y proyectados más detallados para una MIPYME
+  { month: 'Ene \'25', ingresosProyectados: 70000, egresosProyectados: 55000, flujoProyectado: 15000, flujoReal: 16500 },
+  { month: 'Feb \'25', ingresosProyectados: 65000, egresosProyectados: 58000, flujoProyectado: 7000, flujoReal: 6800 },
+  { month: 'Mar \'25', ingresosProyectados: 75000, egresosProyectados: 60000, flujoProyectado: 15000, flujoReal: 17200 },
+  { month: 'Abr \'25', ingresosProyectados: 55000, egresosProyectados: 62000, flujoProyectado: -7000, flujoReal: -6500, evento: 'Inicio Temporada Baja Ventas' },
+  { month: 'May \'25', ingresosProyectados: 60000, egresosProyectados: 59000, flujoProyectado: 1000, flujoReal: 2500 },
+  { month: 'Jun \'25', ingresosProyectados: 85000, egresosProyectados: 65000, flujoProyectado: 20000, flujoReal: 18500, evento: 'Promociones "Día del Padre"' },
+  { month: 'Jul \'25', ingresosProyectados: 70000, egresosProyectados: 75000, flujoProyectado: -5000, flujoReal: null, eventoCritico: 'Pago Nómina y Renta' }, // Mes crítico
+  { month: 'Ago \'25', ingresosProyectados: 68000, egresosProyectados: 60000, flujoProyectado: 8000, flujoReal: null },
+  { month: 'Sep \'25', ingresosProyectados: 78000, egresosProyectados: 62000, flujoProyectado: 16000, flujoReal: null, evento: 'Regreso a Clases (si aplica)'},
+  { month: 'Oct \'25', ingresosProyectados: 90000, egresosProyectados: 68000, flujoProyectado: 22000, flujoReal: null, evento: 'Preparativos Fin de Año' },
+  { month: 'Nov \'25', ingresosProyectados: 100000, egresosProyectados: 70000, flujoProyectado: 30000, flujoReal: null, evento: 'Buen Fin (Estimado)' },
+  { month: 'Dic \'25', ingresosProyectados: 120000, egresosProyectados: 75000, flujoProyectado: 45000, flujoReal: null, evento: 'Ventas Navideñas' },
 ];
 
 const predictiveAlertsData = [
   { 
     id: 1, 
     severity: 'danger',
-    icon: 'bi-exclamation-triangle-fill',
-    title: 'Alerta Crítica: Riesgo de Déficit de Liquidez',
-    message: 'Se proyecta un déficit de liquidez significativo para el 15 de Julio (-$15,200) debido al pago programado al proveedor "Tech Solutions LLC". El flujo de caja actual no cubrirá este egreso.',
-    timestamp: '2025-06-10 08:30:00',
+    icon: FaExclamationTriangle,
+    title: 'Alerta Crítica: Riesgo de Déficit de Liquidez en Julio',
+    message: `Se proyecta un flujo de efectivo negativo de ${formatCurrencyMxn(-5000)} para el 10 de Julio, coincidiendo con el pago de nómina quincenal ($${(35000).toLocaleString('es-MX')}) y la renta del local ($${(18000).toLocaleString('es-MX')}). El saldo actual podría no ser suficiente si los ingresos de principios de mes no cumplen expectativas.`,
+    timestamp: '2025-06-15 09:15:00', // Fecha de generación de alerta
     actionableSteps: [
-      'Renegociar plazo de pago con Tech Solutions LLC.',
-      'Evaluar acceso a línea de crédito a corto plazo.',
-      'Intensificar esfuerzos de cobro a clientes con facturas vencidas.'
+      'Confirmar y asegurar ingresos esperados para la primera semana de Julio.',
+      'Evaluar posibilidad de un pequeño crédito puente o adelanto de cobros.',
+      'Comunicar proactivamente con el arrendador si se anticipa un ligero retraso.'
     ]
   },
   { 
     id: 2, 
     severity: 'warning', 
-    icon: 'bi-exclamation-circle-fill',
-    title: 'Aviso: Descenso en Ingresos por Temporada Baja',
-    message: 'Los ingresos proyectados para Abril y Mayo muestran una disminución del 25% respecto al promedio debido a la temporada baja turística. Se recomienda ajustar gastos operativos.',
-    timestamp: '2025-03-20 14:00:00',
+    icon: FaExclamationCircle,
+    title: 'Aviso: Impacto de Temporada Baja en Abril',
+    message: `El flujo proyectado para Abril es de ${formatCurrencyMxn(-7000)}, marcando el inicio de la temporada baja. Aunque se recupera en Mayo, es crucial monitorear los gastos operativos durante este periodo.`,
+    timestamp: '2025-03-25 11:00:00',
     actionableSteps: [
-      'Revisar y reducir gastos no esenciales.',
-      'Lanzar promociones para atraer clientela local.',
-      'Explorar diversificación de servicios para temporada baja.'
+      'Implementar plan de reducción de gastos variables (ej. horas extra, compras menores).',
+      'Focalizar esfuerzos en promociones para clientes recurrentes.',
+      'Revisar niveles de inventario para evitar sobre stock de productos de baja rotación.'
     ]
   },
   { 
     id: 3, 
     severity: 'info', 
-    icon: 'bi-info-circle-fill',
-    title: 'Oportunidad: Incremento de Flujo por Evento Local',
-    message: 'Se espera un aumento del 15-20% en el flujo de efectivo durante Junio gracias al "Festival Anual de la Ciudad". Planifique inventario y personal adicional.',
-    timestamp: '2025-05-15 11:00:00',
+    icon: FaInfoCircle,
+    title: 'Oportunidad: Potencial de Ventas por "Buen Fin" en Noviembre',
+    message: `Se estima un incremento significativo en ingresos para Noviembre (Flujo Proyectado: ${formatCurrencyMxn(30000)}) debido al "Buen Fin". Es una excelente oportunidad para maximizar ventas.`,
+    timestamp: '2025-09-30 16:30:00',
     actionableSteps: [
-      'Confirmar participación y promociones especiales para el festival.',
-      'Asegurar stock suficiente de productos/servicios de alta demanda.',
-      'Programar personal extra para cubrir el aumento de actividad.'
+      'Planificar campañas de marketing y promociones con anticipación.',
+      'Negociar con proveedores para asegurar stock y posibles descuentos por volumen.',
+      'Preparar personal y logística para un aumento en la demanda.'
     ]
   }
 ];
 
 const modelingInputs = {
-  historicalData: [
-    "Flujo de caja de los últimos 3 años",
-    "Ventas por producto/servicio",
-    "Costos operativos detallados (fijos y variables)",
-    "Ciclos de cobro y pago"
-  ],
-  seasonalPatterns: [
-    "Análisis de temporadas turísticas (alta, media, baja)",
-    "Impacto de festividades y vacaciones escolares",
-    "Variaciones climáticas estacionales"
-  ],
-  marketEvents: [
-    "Calendario de eventos culturales y deportivos locales/regionales",
-    "Ferias y congresos sectoriales",
-    "Lanzamiento de productos/servicios de la competencia"
-  ],
-  economicIndicators: [
-    "Tasas de inflación y de interés",
-    "Índices de confianza del consumidor",
-    "Pronósticos de crecimiento sectorial"
-  ],
-  meteorologicalFactors: [
-    "Pronósticos a corto y mediano plazo",
-    "Alertas por fenómenos meteorológicos extremos (si aplica al negocio)",
-    "Impacto histórico del clima en la demanda"
-  ]
+  datosHistoricos: ["Flujo de caja (últimos 24-36 meses)", "Ventas detalladas por producto/servicio", "Costos fijos y variables históricos", "Ciclos de cobro a clientes y pago a proveedores"],
+  patronesEstacionales: ["Impacto de temporadas altas/bajas (turismo, escolar, etc.)", "Efecto de días festivos y puentes", "Variaciones por clima (si aplica, ej. venta de aires acondicionados)"],
+  eventosMercadoLocal: ["Calendario de ferias, festivales y eventos comunitarios", "Apertura/cierre de negocios competidores o complementarios", "Obras públicas o cambios en vialidades cercanas"],
+  condicionesEconomicasMacro: ["Inflación general y específica del sector", "Tasas de interés (si se manejan créditos)", "Tipo de cambio (si hay transacciones en USD)", "Confianza del consumidor local"],
+  factoresInternosNegocio: ["Lanzamiento de nuevos productos/servicios", "Campañas de marketing planificadas", "Cambios en precios o políticas de crédito", "Rotación de personal clave"]
 };
 
+// --- Funciones de Formato y Componentes ---
+
 const KPISection = () => {
-  const formatCurrency = (value: number | bigint) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(value);
-  
   return (
-    <Row className="mb-4">
-      <Col md={4} className="mb-3">
-        <Card className="shadow-sm h-100">
-          <Card.Body>
-            <Card.Title><i className="bi bi-cash-coin me-2 text-success"></i>Saldo Actual</Card.Title>
-            <h3 className="text-success">{formatCurrency(kpiData.currentBalance)}</h3>
-            <small className="text-muted">Actualizado: {new Date().toLocaleDateString()}</small>
+    <Row className="mb-4 g-3"> {/* g-3 para gutters entre columnas */}
+      <Col md={6} lg={3} className="mb-3 mb-lg-0">
+        <Card className="shadow-sm h-100 border-start border-success border-4">
+          <Card.Body className="d-flex flex-column">
+            <Card.Title className="text-success mb-1"><FaDollarSign className="me-2" />Saldo Actual</Card.Title>
+            <h3 className="fw-bold mt-auto">{formatCurrencyMxn(kpiData.currentBalance)}</h3>
+            <small className="text-muted">Al {new Date(FECHA_ACTUAL_UTC).toLocaleDateString('es-MX')}</small>
           </Card.Body>
         </Card>
       </Col>
-      <Col md={4} className="mb-3">
-        <Card className="shadow-sm h-100">
-          <Card.Body>
-            <Card.Title><i className="bi bi-calendar-event me-2 text-danger"></i>Próximo Punto Crítico</Card.Title>
-            <h4>{kpiData.nextCriticalDate}</h4>
-            <p className="mb-0 text-danger"><small>{kpiData.criticalReason}</small></p>
+      <Col md={6} lg={3} className="mb-3 mb-lg-0">
+        <Card className="shadow-sm h-100 border-start border-danger border-4">
+          <Card.Body className="d-flex flex-column">
+            <Card.Title className="text-danger mb-1"><FaCalendarAlt className="me-2" />Próximo Punto Crítico</Card.Title>
+            <h4 className="mt-auto">{new Date(kpiData.nextCriticalDate + 'T00:00:00').toLocaleDateString('es-MX', {day: '2-digit', month: 'long', year: 'numeric'})}</h4>
+            <p className="mb-0 text-danger small">{kpiData.criticalReason}</p>
           </Card.Body>
         </Card>
       </Col>
-      <Col md={4} className="mb-3">
-        <Card className="shadow-sm h-100">
-          <Card.Body>
-            <Card.Title>
-              <i className={`bi ${kpiData.avgMonthlyNetFlow >= 0 ? 'bi-graph-up-arrow text-primary' : 'bi-graph-down-arrow text-warning'} me-2`}></i>
+      <Col md={6} lg={3} className="mb-3 mb-md-0">
+        <Card className="shadow-sm h-100 border-start border-primary border-4">
+          <Card.Body className="d-flex flex-column">
+            <Card.Title className="text-primary mb-1">
+              <FaChartLine className={`me-2 ${kpiData.avgMonthlyNetFlow >= 0 ? '' : 'text-warning'}`} />
               Flujo Neto Prom. Mensual
             </Card.Title>
-            <h4 className={kpiData.avgMonthlyNetFlow >= 0 ? 'text-primary' : 'text-warning'}>
-              {formatCurrency(kpiData.avgMonthlyNetFlow)}
+            <h4 className={`mt-auto fw-bold ${kpiData.avgMonthlyNetFlow >= 0 ? 'text-primary' : 'text-warning'}`}>
+              {formatCurrencyMxn(kpiData.avgMonthlyNetFlow)}
             </h4>
-            <small className="text-muted">Últimos 6 meses</small>
+            <small className="text-muted">Estimado últimos 6 meses</small>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col md={6} lg={3}>
+        <Card className="shadow-sm h-100 border-start border-info border-4">
+          <Card.Body className="d-flex flex-column">
+            <Card.Title className="text-info mb-1"><FaHandHoldingUsd className="me-2" />Autonomía Financiera</Card.Title>
+            <h4 className="mt-auto fw-bold">{kpiData.runwayMonths.toFixed(1)} meses</h4>
+            <small className="text-muted">Operación sin nuevos ingresos (Burn Rate: {formatCurrencyMxn(Math.abs(kpiData.burnRate))}/mes)</small>
           </Card.Body>
         </Card>
       </Col>
@@ -140,63 +134,97 @@ const KPISection = () => {
   );
 };
 
-const formatCurrencyTooltip = (value: any) =>
-  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(Number(value));
-
 const CashFlowChart = () => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const dataPoint = cashFlowData.find(d => d.month === label);
+      return (
+        <div className="custom-tooltip bg-white p-2 shadow rounded border">
+          <p className="label fw-bold">{`${label}`}</p>
+          {payload.map((pld: any, index: number) => (
+            <p key={index} style={{ color: pld.color, margin: '0.25rem 0' }}>
+              {`${pld.name}: ${formatCurrencyMxn(pld.value)}`}
+            </p>
+          ))}
+          {dataPoint?.evento && <p className="event mt-1 mb-0 pt-1 border-top"><Badge bg="info" pill>Evento</Badge> {dataPoint.evento}</p>}
+          {dataPoint?.eventoCritico && <p className="event mt-1 mb-0 pt-1 border-top"><Badge bg="danger" pill>Crítico</Badge> {dataPoint.eventoCritico}</p>}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <>
-      <h5 className="card-subtitle mb-2 text-muted">Evolución Proyectada vs. Real (Últimos y Próximos Meses)</h5>
-      <ResponsiveContainer width="100%" height={350}>
-        <LineChart data={cashFlowData} margin={{ top: 5, right: 30, left: 20, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis tickFormatter={formatCurrencyTooltip} />
-          <Tooltip formatter={formatCurrencyTooltip} />
-          <Legend verticalAlign="top" height={36}/>
-          <Line type="monotone" dataKey="flujoProyectado" stroke="#8884d8" strokeWidth={2} name="Flujo Proyectado" activeDot={{ r: 8 }} />
-          <Line type="monotone" dataKey="flujoReal" stroke="#82ca9d" strokeWidth={2} name="Flujo Real" activeDot={{ r: 8 }} />
+      <h5 className="card-subtitle mb-2 text-muted">Evolución Proyectada vs. Real (MXN)</h5>
+      <ResponsiveContainer width="100%" height={380}>
+        <LineChart data={cashFlowData} margin={{ top: 5, right: 20, left: 5, bottom: 40 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0"/>
+          <XAxis dataKey="month" angle={-30} textAnchor="end" height={60} interval={0} tick={{fontSize: '0.8rem'}}/>
+          <YAxis tickFormatter={(value) => `${Number(value)/1000}k`} tick={{fontSize: '0.8rem'}}/>
+          <Tooltip content={<CustomTooltip />} />
+          <Legend verticalAlign="top" wrapperStyle={{paddingBottom: '10px'}}/>
+          <Line type="monotone" dataKey="flujoProyectado" stroke="#0d6efd" strokeWidth={2.5} name="Flujo Proyectado" activeDot={{ r: 7 }} dot={{r:4}} />
+          <Line type="monotone" dataKey="flujoReal" stroke="#198754" strokeWidth={2.5} name="Flujo Real (Histórico)" activeDot={{ r: 7 }} dot={{r:4}} connectNulls={false} />
+           {/* Líneas adicionales conceptuales */}
+          <Line type="monotone" dataKey="ingresosProyectados" stroke="#adb5bd" strokeDasharray="5 5" name="Ingresos Proy. (Info)" activeDot={{ r: 6 }} dot={{r:3}} legendType="none" />
+          <Line type="monotone" dataKey="egresosProyectados" stroke="#ffc107" strokeDasharray="5 5" name="Egresos Proy. (Info)" activeDot={{ r: 6 }} dot={{r:3}} legendType="none" />
         </LineChart>
       </ResponsiveContainer>
-      <ListGroup variant="flush" className="mt-3">
-        {cashFlowData.filter(d => d.evento).map(d => (
-          <ListGroup.Item key={d.month} className="px-0 py-1">
-            <Badge bg="info" pill className="me-2">{d.month}</Badge> {d.evento}
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
+      <div className="mt-3">
+        <h6 className="small text-muted">Eventos Clave del Periodo:</h6>
+        <ListGroup variant="flush" className="small">
+            {cashFlowData.filter(d => d.evento || d.eventoCritico).map(d => (
+            <ListGroup.Item key={d.month} className="px-0 py-1 d-flex align-items-center">
+                <Badge bg={d.eventoCritico ? "danger" : "primary"} pill className="me-2">{d.month}</Badge> 
+                {d.eventoCritico ? d.eventoCritico : d.evento}
+            </ListGroup.Item>
+            ))}
+        </ListGroup>
+      </div>
     </>
   );
 };
 
 const ModelingFactors = () => {
+  const iconMap: { [key: string]: React.ElementType } = {
+    datosHistoricos: FaClock,
+    patronesEstacionales: FaCalendarWeek,
+    eventosMercadoLocal: FaStore,
+    condicionesEconomicasMacro: FaUniversity,
+    factoresInternosNegocio: FaIndustry
+  };
+
   return (
     <>
-      <p className="mb-3">
-        El modelo predictivo integra una amplia gama de factores para asegurar la precisión del pronóstico. Estos se agrupan en las siguientes categorías:
+      <p className="mb-3 small">
+        El modelo predictivo integra una gama de factores para asegurar la precisión del pronóstico. Estos se agrupan en:
       </p>
-      <Accordion defaultActiveKey="0">
-        {Object.entries(modelingInputs).map(([key, factors], index) => (
-          <Accordion.Item eventKey={String(index)} key={key}>
-            <Accordion.Header>
-              <i className={`bi bi-${key === 'historicalData' ? 'clock-history' : key === 'seasonalPatterns' ? 'calendar3-week' : key === 'marketEvents' ? 'megaphone' : key === 'economicIndicators' ? 'graph-up' : 'cloud-sun'} me-2`}></i>
-              {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-            </Accordion.Header>
-            <Accordion.Body>
-              <ListGroup variant="flush">
-                {factors.map((factor, i) => (
-                  <ListGroup.Item key={i} className="d-flex align-items-start">
-                    <Badge pill bg="secondary" className="me-2 mt-1">{(i + 1)}</Badge>
-                    {factor}
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            </Accordion.Body>
-          </Accordion.Item>
-        ))}
+      <Accordion flush defaultActiveKey="0">
+        {Object.entries(modelingInputs).map(([key, factors], index) => {
+          const IconComponent = iconMap[key] || FaFlask;
+          return (
+            <Accordion.Item eventKey={String(index)} key={key} className="mb-2 border rounded">
+              <Accordion.Header>
+                <IconComponent className="me-2 text-primary" size="1.1em"/>
+                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+              </Accordion.Header>
+              <Accordion.Body className="p-2">
+                <ListGroup variant="flush" className="small">
+                  {factors.map((factor, i) => (
+                    <ListGroup.Item key={i} className="d-flex align-items-start py-1 px-1 border-0">
+                      <Badge pill bg="secondary" className="me-2 mt-1 fw-normal" style={{fontSize: '0.7em'}}>{(i + 1)}</Badge>
+                      {factor}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </Accordion.Body>
+            </Accordion.Item>
+          );
+        })}
       </Accordion>
-      <Card.Text className="mt-3 fst-italic">
-        <small>La ponderación y relevancia de cada factor se ajusta dinámicamente mediante algoritmos de aprendizaje automático para optimizar la precisión del pronóstico.</small>
+      <Card.Text className="mt-3 fst-italic small">
+        La relevancia de cada factor se ajusta dinámicamente para optimizar la precisión del pronóstico.
       </Card.Text>
     </>
   );
@@ -212,117 +240,111 @@ const AlertsDisplay = () => {
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <p className="mb-0">Alertas generadas por el sistema para anticipar eventos críticos y oportunidades.</p>
+        <p className="mb-0 small">Alertas generadas por el sistema para anticipar eventos y oportunidades.</p>
         <div>
-          <Badge bg="danger" className="me-1">{kpiData.alertsCount.critical} Críticas</Badge>
-          <Badge bg="warning" text="dark" className="me-1">{kpiData.alertsCount.warning} Avisos</Badge>
-          <Badge bg="info">{kpiData.alertsCount.info} Informativas</Badge>
+          <Badge bg="danger" className="me-1" pill>{kpiData.alertsCount.critical} Críticas</Badge>
+          <Badge bg="warning" text="dark" className="me-1" pill>{kpiData.alertsCount.warning} Avisos</Badge>
+          <Badge bg="info" pill>{kpiData.alertsCount.info} Info</Badge>
         </div>
       </div>
-      {predictiveAlertsData.length === 0 && <Alert variant="light">No hay alertas activas en este momento.</Alert>}
-      {predictiveAlertsData.map(alert => (
-        <Alert key={alert.id} variant={getAlertVariant(alert.severity)} className="shadow-sm mb-3">
-          <Alert.Heading>
-            <i className={`${alert.icon} me-2`}></i>{alert.title}
-          </Alert.Heading>
-          <p>{alert.message}</p>
-          {alert.actionableSteps && alert.actionableSteps.length > 0 && (
-            <>
-              <hr />
-              <p className="mb-1"><strong>Acciones Sugeridas:</strong></p>
-              <ul className="mb-0 ps-4">
-                {alert.actionableSteps.map((step, i) => <li key={i}><small>{step}</small></li>)}
-              </ul>
-            </>
-          )}
-          <hr />
-          <small className="text-muted">Generada: {new Date(alert.timestamp).toLocaleString()}</small>
-        </Alert>
-      ))}
+      {predictiveAlertsData.length === 0 && <Alert variant="light" className="text-center py-3">No hay alertas activas en este momento.</Alert>}
+      {predictiveAlertsData.map(alert => {
+        const IconComponent = alert.icon;
+        return (
+          <Alert key={alert.id} variant={getAlertVariant(alert.severity)} className="shadow-sm mb-3 border-start border-5" style={{borderColor: `var(--bs-${getAlertVariant(alert.severity)}) !important`}}>
+            <Alert.Heading className="h6">
+              <IconComponent className={`me-2 text-${getAlertVariant(alert.severity)}`} size="1.2em"/>{alert.title}
+            </Alert.Heading>
+            <p className="mb-2 small">{alert.message}</p>
+            {alert.actionableSteps && alert.actionableSteps.length > 0 && (
+              <>
+                <hr className="my-2"/>
+                <p className="mb-1 small"><strong>Acciones Sugeridas:</strong></p>
+                <ul className="mb-0 ps-4 small" style={{listStyleType: 'disc'}}>
+                  {alert.actionableSteps.map((step, i) => <li key={i}>{step}</li>)}
+                </ul>
+              </>
+            )}
+            <hr className="my-2"/>
+            <small className="text-muted">Generada: {new Date(alert.timestamp).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</small>
+          </Alert>
+        );
+      })}
     </>
   );
 };
 
-// --- Disclaimer ---
 const ExperimentalDisclaimer = () => (
-  <Alert variant="secondary" className="mt-4 mb-4 shadow-sm border">
-    <i className="bi bi-exclamation-diamond-fill me-2"></i>
-    <strong>IMPORTANTE:</strong> Este sistema utiliza tecnología experimental de pronóstico financiero basada en datos históricos, modelado avanzado y aprendizaje automático. Los resultados presentados son estimaciones y <b>no deben considerarse como asesoramiento financiero profesional</b>. <br />
+  <Alert variant="secondary" className="mt-0 mb-4 shadow-sm border-warning border-2">
+    <FaExclamationTriangle className="me-2 text-warning" />
+    <strong>IMPORTANTE:</strong> Este es un sistema de pronóstico financiero experimental. Los resultados son estimaciones y <b>no constituyen asesoramiento financiero profesional</b>. Consulte con un experto antes de tomar decisiones críticas.
   </Alert>
 );
 
-// --- Componente Principal del Dashboard Mejorado ---
 const EnhancedCashFlowDashboard = () => {
   return (
-    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8f9fa' }}>
-      <Row className="justify-content-center mb-4">
-        <Col md={12} className="text-center">
-          <h1 className="display-5"><i className="bi bi-bar-chart-line-fill me-2"></i>Pronostico de Flujo de Efectivo</h1>
-          <p className="lead text-muted">Análisis predictivo y monitoreo en tiempo real para la toma de decisiones financieras estratégicas.</p>
+    <Container fluid className="py-4 px-lg-4 px-md-3 px-2" style={{ backgroundColor: '#f4f6f9', fontFamily: "'Inter', sans-serif" }}>
+      <Row className="justify-content-between align-items-center mb-4">
+        <Col md="auto">
+          <h1 className="display-6 fw-light mb-0"><FaChartLine className="me-2 text-primary"/>Pronóstico de Flujo de Efectivo</h1>
+          <p className="lead text-muted small mb-0">Análisis predictivo para la MIPYME. Usuario: {USUARIO_ACTUAL}</p>
+        </Col>
+        <Col md="auto" className="text-md-end mt-2 mt-md-0">
+            <small className="text-muted">Última Actualización de Datos: {new Date(FECHA_ACTUAL_UTC).toLocaleString('es-MX', {dateStyle:'long', timeStyle:'short'})} UTC</small>
         </Col>
       </Row>
-      <Row>
-        <Col>
-          <ExperimentalDisclaimer />
-        </Col>
-      </Row>
-      {/* Sección de KPIs */}
+      
+      <ExperimentalDisclaimer />
       <KPISection />
 
-      <Row>
-        {/* Columna Izquierda: Gráfico y Alertas */}
-        <Col lg={7} className="mb-4">
+      <Row className="g-4">
+        <Col xl={7} lg={12} className="mb-4 mb-xl-0">
           <Card className="shadow-sm h-100">
-            <Card.Header as="h5" className="bg-primary text-white">
-              <i className="bi bi-graph-up me-2"></i>Pronóstico de Flujo de Efectivo
+            <Card.Header as="h5" className="bg-white border-bottom py-3">
+              <FaChartLine className="me-2 text-primary"/>Pronóstico de Flujo de Efectivo (MXN)
             </Card.Header>
-            <Card.Body>
+            <Card.Body className="p-2 p-sm-3">
               <CashFlowChart />
             </Card.Body>
           </Card>
         </Col>
-        {/* Columna Derecha: Modelado y Alertas */}
-        <Col lg={5} className="mb-4">
+        <Col xl={5} lg={12}>
            <Card className="shadow-sm mb-4">
-            <Card.Header as="h5" className="bg-info text-white">
-              <i className="bi bi-cpu-fill me-2"></i>Modelado Basado en Patrones
+            <Card.Header as="h5" className="bg-white border-bottom py-3">
+              <FaFlask className="me-2 text-info"/>Factores del Modelo Predictivo
             </Card.Header>
-            <Card.Body>
+            <Card.Body className="p-2 p-sm-3">
               <ModelingFactors />
             </Card.Body>
-             <Card.Footer className="text-muted small">
-               <i className="bi bi-lightbulb me-1"></i><strong>Entradas Clave:</strong> Históricos, Estacionalidad, Eventos de Mercado, Indicadores Económicos, Meteorología.
+             <Card.Footer className="text-muted small py-2">
+               <FaLightbulb className="me-1 text-warning"/><strong>Clave:</strong> Históricos, Estacionalidad, Eventos, Economía, Internos.
             </Card.Footer>
           </Card>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-            <Card className="shadow-sm">
-                <Card.Header as="h5" className="bg-warning text-dark">
-                <i className="bi bi-bell-fill me-2"></i>Alertas Predictivas del Sistema
-                </Card.Header>
-                <Card.Body>
-                <AlertsDisplay />
-                </Card.Body>
-                <Card.Footer className="text-muted small">
-                    <i className="bi bi-shield-check me-1"></i><strong>Objetivo:</strong> Anticipar déficits, identificar oportunidades y mitigar riesgos financieros.
-                </Card.Footer>
-            </Card>
+           <Card className="shadow-sm">
+            <Card.Header as="h5" className="bg-white border-bottom py-3">
+              Alertas y Recomendaciones del Sistema
+            </Card.Header>
+            <Card.Body className="p-2 p-sm-3" style={{maxHeight: '450px', overflowY: 'auto'}}>
+              <AlertsDisplay />
+            </Card.Body>
+            <Card.Footer className="text-muted small py-2">
+                <FaShieldAlt className="me-1 text-success"/><strong>Objetivo:</strong> Anticipar riesgos y capitalizar oportunidades.
+            </Card.Footer>
+           </Card>
         </Col>
       </Row>
       <style type="text/css">
         {`
-        .card-header i {
-          font-size: 1.1rem;
-        }
-        .accordion-button:not(.collapsed) {
-          color: #0c63e4;
-          background-color: #e7f1ff;
-        }
-        .display-5 {
-          font-weight: 300;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        .card-header h5, .card-header .h5 { margin-bottom: 0; font-weight: 500; font-size: 1.1rem; }
+        .accordion-button:not(.collapsed) { color: #0056b3; background-color: #e7f1ff; box-shadow: inset 0 -1px 0 rgba(0,0,0,.125); }
+        .accordion-button:focus { box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
+        .display-6 { font-weight: 300 !important; }
+        .border-start.border-4 { border-left-width: 4px !important; }
+        .custom-tooltip { font-size: 0.85rem; }
+        .custom-tooltip .label { font-size: 0.9rem; }
+        .alert-heading.h6 { font-weight: 600; font-size: 1rem; }
+        .table-responsive { overflow-x: auto; } /* Ensure horizontal scroll on small screens if table is too wide */
         `}
       </style>
     </Container>
@@ -330,3 +352,6 @@ const EnhancedCashFlowDashboard = () => {
 };
 
 export default EnhancedCashFlowDashboard;
+
+// Helper function (already defined, just for context)
+// const formatCurrencyMxn = (value: number | bigint) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(value));
